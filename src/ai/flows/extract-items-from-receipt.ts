@@ -36,7 +36,7 @@ const prompt = ai.definePrompt({
   name: 'extractItemsFromReceiptPrompt',
   input: {schema: ExtractItemsFromReceiptInputSchema},
   output: {schema: ExtractItemsFromReceiptOutputSchema},
-  prompt: `You are an expert in extracting items and prices from restaurant receipts.\n\nAnalyze the receipt image and extract all the items, their corresponding prices, and a short, one-sentence description for each item. Return the data as a JSON array.\n\nReceipt Image: {{media url=photoDataUri}}\n`,
+  prompt: `You are an expert in extracting items and prices from restaurant receipts. The receipt can be in any language.\n\nAnalyze the receipt image and extract all the items, their corresponding prices, and a short, one-sentence description for each item. Return the data as a JSON array.\n\nReceipt Image: {{media url=photoDataUri}}\n`,
 });
 
 const extractItemsFromReceiptFlow = ai.defineFlow(

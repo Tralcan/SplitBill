@@ -86,6 +86,10 @@ export function SplitItRightApp() {
     }
   };
 
+  const handleUpdateDinerName = (dinerId: string, name: string) => {
+    setDiners(diners.map(diner => diner.id === dinerId ? { ...diner, name } : diner));
+  };
+
   const handleAssignItem = (itemId: string, dinerId: string | null) => {
     setItems(
       items.map((item) => {
@@ -137,6 +141,7 @@ export function SplitItRightApp() {
         dinerTotals={totals.dinerTotals}
         onAddDiner={handleAddDiner}
         onRemoveDiner={handleRemoveDiner}
+        onUpdateDinerName={handleUpdateDinerName}
       />
       
       <ItemList
