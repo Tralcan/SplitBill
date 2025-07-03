@@ -15,6 +15,7 @@ type ItemListProps = {
   onTogglePaid: (itemId: string) => void;
   onIncreaseFontSize: () => void;
   onDecreaseFontSize: () => void;
+  onUpdateItemPrice: (itemId: string, newPrice: number) => void;
 };
 
 export function ItemList({
@@ -25,6 +26,7 @@ export function ItemList({
   onTogglePaid,
   onIncreaseFontSize,
   onDecreaseFontSize,
+  onUpdateItemPrice,
 }: ItemListProps) {
   if (items.length === 0) {
     return (
@@ -63,6 +65,7 @@ export function ItemList({
                 currentDinerId={currentDinerId}
                 onAssignItem={onAssignItem}
                 onTogglePaid={onTogglePaid}
+                onUpdateItemPrice={onUpdateItemPrice}
               />
             ))}
           </div>

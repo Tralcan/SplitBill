@@ -1,12 +1,14 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import type { Diner, Item } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Hand, Undo2 } from 'lucide-react';
+import { Hand, Undo2, Pencil } from 'lucide-react';
+import { Input } from './ui/input';
 
 type ItemCardProps = {
   item: Item;
@@ -14,6 +16,7 @@ type ItemCardProps = {
   currentDinerId: string | null;
   onAssignItem: (itemId: string, dinerId: string | null) => void;
   onTogglePaid: (itemId: string) => void;
+  onUpdateItemPrice: (itemId: string, newPrice: number) => void;
 };
 
 export function ItemCard({
@@ -22,7 +25,12 @@ export function ItemCard({
   currentDinerId,
   onAssignItem,
   onTogglePaid,
+  onUpdateItemPrice,
 }: ItemCardProps) {
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [priceStr, setPriceStr] = useState(item.price.toFixed(2));
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const assignedDiner = item.dinerId ? diners.find((d) => d.id === item.dinerId) : null;
 
   const formatCurrency = (amount: number) => {
@@ -31,6 +39,35 @@ export function ItemCard({
   
   const isClaimed = !!item.dinerId;
   const isClaimedByCurrentUser = item.dinerId === currentDinerId;
+
+  const handleSavePrice = () => {
+    const newPrice = parseFloat(priceStr);
+    if (!isNaN(newPrice) && newPrice >= 0) {
+      onUpdateItemPrice(item.id, newPrice);
+    } else {
+      setPriceStr(item.price.toFixed(2));
+    }
+    setIsEditingPrice(false);
+  };
+
+  const handlePriceClick = () => {
+    if (!item.isPaid) {
+      setPriceStr(item.price.toFixed(2));
+      setIsEditingPrice(true);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditingPrice && inputRef.current) {
+      inputRef.current.select();
+    }
+  }, [isEditingPrice]);
+
+  useEffect(() => {
+    if (!isEditingPrice) {
+      setPriceStr(item.price.toFixed(2));
+    }
+  }, [item.price, isEditingPrice]);
 
   return (
     <div
@@ -48,9 +85,46 @@ export function ItemCard({
           {item.description}
         </p>
         <div className="flex items-center gap-2 pt-1">
-            <span className={cn('text-sm font-semibold text-primary', item.isPaid && 'line-through')}>
-                {formatCurrency(item.price)}
-            </span>
+            {isEditingPrice ? (
+               <div className="flex items-center gap-1">
+                 <span className="text-sm font-semibold text-primary mr-1">$</span>
+                 <Input
+                   ref={inputRef}
+                   type="number"
+                   value={priceStr}
+                   onChange={(e) => setPriceStr(e.target.value)}
+                   onBlur={handleSavePrice}
+                   onKeyDown={(e) => {
+                     if (e.key === 'Enter') handleSavePrice();
+                     if (e.key === 'Escape') {
+                       setIsEditingPrice(false);
+                       setPriceStr(item.price.toFixed(2));
+                     }
+                   }}
+                   className="h-8 w-24 px-2 text-sm"
+                   step="0.01"
+                   min="0"
+                 />
+               </div>
+            ) : (
+                <div
+                    onClick={handlePriceClick}
+                    onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !item.isPaid) handlePriceClick() }}
+                    role="button"
+                    tabIndex={item.isPaid ? -1 : 0}
+                    aria-label="Editar precio"
+                    className={cn(
+                        'flex items-center gap-1.5 p-1 -m-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                        !item.isPaid ? 'cursor-pointer hover:bg-accent' : 'cursor-default'
+                    )}
+                >
+                    <span className={cn('text-sm font-semibold text-primary', item.isPaid && 'line-through text-muted-foreground')}>
+                        {formatCurrency(item.price)}
+                    </span>
+                    {!item.isPaid && <Pencil className="h-3 w-3 text-muted-foreground" />}
+                </div>
+            )}
+
             {assignedDiner && (
                 <Badge variant={isClaimedByCurrentUser ? "default" : "secondary"}>
                     {assignedDiner.name}

@@ -129,6 +129,14 @@ export function SplitItRightApp() {
     );
   };
   
+  const handleUpdateItemPrice = (itemId: string, newPrice: number) => {
+    setItems(
+      items.map((item) =>
+        item.id === itemId ? { ...item, price: newPrice } : item
+      )
+    );
+  };
+
   const handleReset = () => {
     setItems([]);
     setDiners([]);
@@ -170,6 +178,7 @@ export function SplitItRightApp() {
         onTogglePaid={handleTogglePaid}
         onIncreaseFontSize={handleIncreaseFontSize}
         onDecreaseFontSize={handleDecreaseFontSize}
+        onUpdateItemPrice={handleUpdateItemPrice}
       />
 
       <div className="flex justify-end pt-4">
