@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useActionState } from 'react';
 import type { Diner, Item } from '@/lib/types';
 import { UploadReceipt } from '@/components/upload-receipt';
 import { BillSummary } from '@/components/bill-summary';
 import { DinerManager } from '@/components/diner-manager';
 import { ItemList } from '@/components/item-list';
 import { handleReceiptUpload } from '@/app/actions';
-import { useFormState } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
@@ -24,7 +23,7 @@ export function SplitItRightApp() {
   const [appState, setAppState] = useState<'idle' | 'splitting'>('idle');
 
   const { toast } = useToast();
-  const [state, formAction] = useFormState(handleReceiptUpload, initialState);
+  const [state, formAction] = useActionState(handleReceiptUpload, initialState);
 
   useEffect(() => {
     if (state.success && state.data) {
