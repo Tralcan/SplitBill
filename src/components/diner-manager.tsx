@@ -50,11 +50,21 @@ export function DinerManager({
   };
   
   const handleConfirmAddDiner = () => {
-    if (newDinerName.trim()) {
-      onAddDiner(newDinerName.trim());
-      setNewDinerName('');
-      setIsAddingDiner(false);
+    let finalName = newDinerName.trim();
+    if (!finalName) {
+      const personaNumbers = diners
+        .map(d => {
+            const match = d.name.match(/^Persona (\d+)$/);
+            return match ? parseInt(match[1], 10) : 0;
+        });
+      
+      const highestNumber = personaNumbers.length > 0 ? Math.max(0, ...personaNumbers) : 0;
+      finalName = `Persona ${highestNumber + 1}`;
     }
+    
+    onAddDiner(finalName);
+    setNewDinerName('');
+    setIsAddingDiner(false);
   };
 
   const formatCurrency = (amount: number) => {
@@ -142,14 +152,14 @@ export function DinerManager({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Añadir Nueva Persona</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Introduce el nombre de la persona que va a pagar.
+                    Introduce el nombre de la persona que va a pagar. Si no introduces un nombre, se asignará uno automáticamente.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <Input
                   value={newDinerName}
                   onChange={(e) => setNewDinerName(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleConfirmAddDiner(); } }}
-                  placeholder="Ej: Juan Pérez"
+                  placeholder="Ej: Juan Pérez (Opcional)"
                   autoFocus
                 />
                 <AlertDialogFooter>
