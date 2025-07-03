@@ -4,7 +4,8 @@ import type { Diner, Item } from '@/lib/types';
 import { ItemCard } from '@/components/item-card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { List } from 'lucide-react';
+import { List, ZoomIn, ZoomOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 type ItemListProps = {
   items: Item[];
@@ -12,6 +13,8 @@ type ItemListProps = {
   currentDinerId: string | null;
   onAssignItem: (itemId: string, dinerId: string | null) => void;
   onTogglePaid: (itemId: string) => void;
+  onIncreaseFontSize: () => void;
+  onDecreaseFontSize: () => void;
 };
 
 export function ItemList({
@@ -20,6 +23,8 @@ export function ItemList({
   currentDinerId,
   onAssignItem,
   onTogglePaid,
+  onIncreaseFontSize,
+  onDecreaseFontSize,
 }: ItemListProps) {
   if (items.length === 0) {
     return (
@@ -30,10 +35,22 @@ export function ItemList({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <List className="w-5 h-5"/>
-          Artículos del Recibo
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center gap-2">
+            <List className="w-5 h-5"/>
+            Artículos del Recibo
+          </CardTitle>
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onDecreaseFontSize}>
+              <ZoomOut className="h-4 w-4" />
+              <span className="sr-only">Achicar letra</span>
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onIncreaseFontSize}>
+              <ZoomIn className="h-4 w-4" />
+              <span className="sr-only">Agrandar letra</span>
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">

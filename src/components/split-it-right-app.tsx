@@ -21,15 +21,35 @@ export function SplitItRightApp() {
   const [diners, setDiners] = useState<Diner[]>([]);
   const [currentDinerId, setCurrentDinerId] = useState<string | null>(null);
   const [appState, setAppState] = useState<'idle' | 'splitting'>('idle');
+  const [fontScaleIndex, setFontScaleIndex] = useState(2);
 
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
+
+  useEffect(() => {
+    const scales = [0.8, 0.9, 1.0, 1.15, 1.3];
+    const baseFontSize = 16;
+    document.documentElement.style.fontSize = `${baseFontSize * scales[fontScaleIndex]}px`;
+    
+    return () => {
+      document.documentElement.style.fontSize = '';
+    };
+  }, [fontScaleIndex]);
+  
+  const handleIncreaseFontSize = () => {
+    setFontScaleIndex(prevIndex => Math.min(prevIndex + 1, 4));
+  };
+
+  const handleDecreaseFontSize = () => {
+    setFontScaleIndex(prevIndex => Math.max(prevIndex - 1, 0));
+  };
 
   useEffect(() => {
     if (state.success && state.data) {
       const initialItems: Item[] = state.data.map((item) => ({
         ...item,
         id: crypto.randomUUID(),
+        name: item.item,
         dinerId: null,
         isPaid: false,
       }));
@@ -74,12 +94,10 @@ export function SplitItRightApp() {
   };
   
   const handleRemoveDiner = (dinerId: string) => {
-    // Re-assign items of the removed diner to unassigned
     setItems(items.map(item => item.dinerId === dinerId ? { ...item, dinerId: null } : item));
     const newDiners = diners.filter(d => d.id !== dinerId);
     setDiners(newDiners);
     
-    // If the removed diner was the current one, switch to the first available diner or null
     if (currentDinerId === dinerId) {
       setCurrentDinerId(newDiners.length > 0 ? newDiners[0].id : null);
     }
@@ -99,7 +117,15 @@ export function SplitItRightApp() {
 
   const handleTogglePaid = (itemId: string) => {
     setItems(
-      items.map((item) => (item.id === itemId ? { ...item, isPaid: !item.isPaid } : item))
+      items.map((item) => {
+        if (item.id === itemId) {
+          const isNowPaid = !item.isPaid;
+          // If the item is now paid, it cannot be unassigned.
+          // If it is now unpaid, it can be unassigned.
+          return { ...item, isPaid: isNowPaid };
+        }
+        return item;
+      })
     );
   };
   
@@ -142,6 +168,8 @@ export function SplitItRightApp() {
         currentDinerId={currentDinerId}
         onAssignItem={handleAssignItem}
         onTogglePaid={handleTogglePaid}
+        onIncreaseFontSize={handleIncreaseFontSize}
+        onDecreaseFontSize={handleDecreaseFontSize}
       />
 
       <div className="flex justify-end pt-4">
