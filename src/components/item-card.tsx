@@ -29,7 +29,7 @@ export function ItemCard({
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(amount);
   };
   
-  const canBeClaimed = !item.dinerId;
+  const isClaimed = !!item.dinerId;
   const isClaimedByCurrentUser = item.dinerId === currentDinerId;
 
   return (
@@ -60,7 +60,7 @@ export function ItemCard({
       </div>
 
       <div className="flex items-center gap-4">
-        {canBeClaimed && (
+        {!isClaimed && (
             <Button
               variant="outline"
               size="sm"
@@ -71,7 +71,7 @@ export function ItemCard({
               Reclamar
             </Button>
         )}
-        {isClaimedByCurrentUser && (
+        {isClaimed && (
             <Button
               variant="secondary"
               size="sm"

@@ -92,16 +92,9 @@ export function SplitItRightApp() {
 
   const handleAssignItem = (itemId: string, dinerId: string | null) => {
     setItems(
-      items.map((item) => {
-        if (item.id === itemId) {
-          // Un-assign if already assigned to the current selected diner
-          if (item.dinerId === dinerId) {
-            return { ...item, dinerId: null };
-          }
-          return { ...item, dinerId };
-        }
-        return item;
-      })
+      items.map((item) =>
+        item.id === itemId ? { ...item, dinerId: dinerId } : item
+      )
     );
   };
 
