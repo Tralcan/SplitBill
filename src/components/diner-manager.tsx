@@ -21,9 +21,9 @@ import { Input } from './ui/input';
 type DinerManagerProps = {
   diners: Diner[];
   currentDinerId: string | null;
-  setCurrentDinerId: (id: string) => void;
+  setCurrentDinerId: (id: string | null) => void;
   dinerTotals: Record<string, number>;
-  onAddDiner: () => void;
+  onAddDiner: (name: string) => void;
   onRemoveDiner: (id: string) => void;
   onUpdateDinerName: (id: string, name: string) => void;
 };
@@ -39,12 +39,22 @@ export function DinerManager({
 }: DinerManagerProps) {
   const [editingDiner, setEditingDiner] = React.useState<Diner | null>(null);
   const [newName, setNewName] = React.useState('');
+  const [isAddingDiner, setIsAddingDiner] = React.useState(false);
+  const [newDinerName, setNewDinerName] = React.useState('');
 
   const handleSaveName = () => {
     if (editingDiner && newName.trim()) {
       onUpdateDinerName(editingDiner.id, newName.trim());
     }
     setEditingDiner(null);
+  };
+  
+  const handleConfirmAddDiner = () => {
+    if (newDinerName.trim()) {
+      onAddDiner(newDinerName.trim());
+      setNewDinerName('');
+      setIsAddingDiner(false);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -97,7 +107,6 @@ export function DinerManager({
                     </AlertDialogContent>
                   </AlertDialog>
 
-                  {diners.length > 1 && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-destructive/80 hover:text-destructive-foreground">
@@ -119,14 +128,36 @@ export function DinerManager({
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                  )}
                 </div>
               </div>
             ))}
-             <Button variant="outline" size="sm" onClick={onAddDiner} className="ml-2">
-                <Plus className="mr-2 h-4 w-4" />
-                Añadir Persona
-              </Button>
+            <AlertDialog open={isAddingDiner} onOpenChange={(isOpen) => { setIsAddingDiner(isOpen); if (!isOpen) setNewDinerName(''); }}>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" className="ml-2">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Añadir Persona
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Añadir Nueva Persona</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Introduce el nombre de la persona que va a pagar.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Input
+                  value={newDinerName}
+                  onChange={(e) => setNewDinerName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleConfirmAddDiner(); } }}
+                  placeholder="Ej: Juan Pérez"
+                  autoFocus
+                />
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleConfirmAddDiner}>Añadir</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </TabsList>
         </Tabs>
       </div>

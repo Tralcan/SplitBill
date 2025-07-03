@@ -35,12 +35,12 @@ export function ItemCard({
   return (
     <div
       className={cn(
-        'p-4 rounded-lg border flex items-center justify-between gap-4 transition-all duration-300',
+        'p-4 rounded-lg border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300',
         item.isPaid ? 'bg-muted/50 opacity-60' : 'bg-card',
         isClaimedByCurrentUser && !item.isPaid ? 'border-primary shadow-sm' : ''
       )}
     >
-      <div className="flex-grow space-y-1">
+      <div className="flex-grow space-y-1 w-full">
         <p className={cn('font-medium', item.isPaid && 'line-through')}>
           {item.name}
         </p>
@@ -59,13 +59,13 @@ export function ItemCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        {!isClaimed && (
+      <div className="flex items-center gap-4 self-end sm:self-center">
+        {!isClaimed && currentDinerId && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => onAssignItem(item.id, currentDinerId)}
-              disabled={!currentDinerId || item.isPaid}
+              disabled={item.isPaid}
             >
               <Hand className="mr-2 h-4 w-4" />
               Reclamar

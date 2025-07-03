@@ -33,15 +33,14 @@ export function SplitItRightApp() {
         dinerId: null,
         isPaid: false,
       }));
-      const initialDiner = { id: crypto.randomUUID(), name: 'Persona 1' };
 
       setItems(initialItems);
-      setDiners([initialDiner]);
-      setCurrentDinerId(initialDiner.id);
+      setDiners([]);
+      setCurrentDinerId(null);
       setAppState('splitting');
       toast({
         title: "¡Éxito!",
-        description: "Tu recibo ha sido procesado.",
+        description: "Tu recibo ha sido procesado. Ahora, añade a las personas que pagarán.",
       })
     } else if (state.error) {
       toast({
@@ -68,8 +67,8 @@ export function SplitItRightApp() {
     return { billTotal, paidTotal, remainingTotal, isSettled, dinerTotals };
   }, [items, diners]);
 
-  const handleAddDiner = () => {
-    const newDiner = { id: crypto.randomUUID(), name: `Persona ${diners.length + 1}` };
+  const handleAddDiner = (name: string) => {
+    const newDiner = { id: crypto.randomUUID(), name };
     setDiners([...diners, newDiner]);
     setCurrentDinerId(newDiner.id);
   };
