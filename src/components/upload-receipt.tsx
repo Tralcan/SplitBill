@@ -12,7 +12,8 @@ type UploadReceiptProps = {
   formAction: (payload: FormData) => void;
 };
 
-export function UploadReceipt({ formAction }: UploadReceiptProps) {
+// This component is rendered inside a <form> and can use useFormStatus
+function FormContents() {
   const [preview, setPreview] = useState<string | null>(null);
   const [photoDataUri, setPhotoDataUri] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,9 +33,58 @@ export function UploadReceipt({ formAction }: UploadReceiptProps) {
   };
 
   const handleSelectFileClick = () => {
+    if (pending) return;
     fileInputRef.current?.click();
-  }
+  };
 
+  return (
+    <div className="space-y-6">
+      <div
+        onClick={handleSelectFileClick}
+        className={`relative flex flex-col items-center justify-center w-full h-64 p-4 border-2 border-dashed rounded-lg text-muted-foreground transition-colors ${pending ? 'cursor-not-allowed bg-muted/50' : 'cursor-pointer hover:bg-accent/50 hover:border-primary'}`}
+      >
+        <Input
+          id="receipt-upload"
+          name="receipt-upload"
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+          accept="image/*"
+          disabled={pending}
+        />
+        <input type="hidden" name="photoDataUri" value={photoDataUri} />
+
+        {preview ? (
+          <Image src={preview} alt="Vista previa del recibo" layout="fill" objectFit="contain" className="rounded-md" />
+        ) : (
+          <div className="text-center">
+            <UploadCloud className="w-12 h-12 mx-auto" />
+            <p className="mt-2 font-semibold">Haz clic para subir un recibo</p>
+            <p className="text-xs">Se aceptan PNG, JPG o WEBP</p>
+          </div>
+        )}
+      </div>
+
+      <Button type="submit" className="w-full" disabled={!preview || pending}>
+        {pending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Procesando...
+          </>
+        ) : (
+          <>
+            <ImageIcon className="mr-2 h-4 w-4" />
+            Escanear Artículos del Recibo
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
+
+export function UploadReceipt({ formAction }: UploadReceiptProps) {
   return (
     <Card className="w-full max-w-lg mx-auto">
       <CardHeader>
@@ -42,47 +92,8 @@ export function UploadReceipt({ formAction }: UploadReceiptProps) {
         <CardDescription>Sube una foto de tu recibo para comenzar.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="space-y-6">
-          <div 
-            onClick={handleSelectFileClick}
-            className="relative flex flex-col items-center justify-center w-full h-64 p-4 border-2 border-dashed rounded-lg cursor-pointer text-muted-foreground hover:bg-accent/50 hover:border-primary transition-colors"
-          >
-            <Input
-              id="receipt-upload"
-              name="receipt-upload"
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              onChange={handleFileChange}
-              accept="image/*"
-              disabled={pending}
-            />
-            <input type="hidden" name="photoDataUri" value={photoDataUri} />
-
-            {preview ? (
-              <Image src={preview} alt="Vista previa del recibo" layout="fill" objectFit="contain" className="rounded-md" />
-            ) : (
-              <div className="text-center">
-                <UploadCloud className="w-12 h-12 mx-auto" />
-                <p className="mt-2 font-semibold">Haz clic para subir un recibo</p>
-                <p className="text-xs">Se aceptan PNG, JPG o WEBP</p>
-              </div>
-            )}
-          </div>
-          
-          <Button type="submit" className="w-full" disabled={!preview || pending}>
-            {pending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Procesando...
-              </>
-            ) : (
-              <>
-                <ImageIcon className="mr-2 h-4 w-4" />
-                Escanear Artículos del Recibo
-              </>
-            )}
-          </Button>
+        <form action={formAction}>
+          <FormContents />
         </form>
       </CardContent>
     </Card>
