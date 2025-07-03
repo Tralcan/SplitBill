@@ -3,8 +3,8 @@
 import type { Diner, Item } from '@/lib/types';
 import { ItemCard } from '@/components/item-card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { List, ZoomIn, ZoomOut } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { List, ZoomIn, ZoomOut, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type ItemListProps = {
@@ -16,6 +16,7 @@ type ItemListProps = {
   onIncreaseFontSize: () => void;
   onDecreaseFontSize: () => void;
   onUpdateItemPrice: (itemId: string, newPrice: number) => void;
+  onAddItem: () => void;
 };
 
 export function ItemList({
@@ -27,12 +28,8 @@ export function ItemList({
   onIncreaseFontSize,
   onDecreaseFontSize,
   onUpdateItemPrice,
+  onAddItem,
 }: ItemListProps) {
-  if (items.length === 0) {
-    return (
-      <p className="text-center text-muted-foreground py-8">No hay artículos en este recibo.</p>
-    );
-  }
 
   return (
     <Card>
@@ -55,22 +52,32 @@ export function ItemList({
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-3">
-            {items.map((item) => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                diners={diners}
-                currentDinerId={currentDinerId}
-                onAssignItem={onAssignItem}
-                onTogglePaid={onTogglePaid}
-                onUpdateItemPrice={onUpdateItemPrice}
-              />
-            ))}
-          </div>
-        </ScrollArea>
+        {items.length === 0 ? (
+          <p className="text-center text-muted-foreground h-[400px] flex items-center justify-center">No hay artículos en este recibo.</p>
+        ) : (
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-3">
+              {items.map((item) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  diners={diners}
+                  currentDinerId={currentDinerId}
+                  onAssignItem={onAssignItem}
+                  onTogglePaid={onTogglePaid}
+                  onUpdateItemPrice={onUpdateItemPrice}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+        )}
       </CardContent>
+      <CardFooter className="justify-end">
+        <Button variant="outline" onClick={onAddItem}>
+            <Plus className="mr-2 h-4 w-4" />
+            Añadir Artículo
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

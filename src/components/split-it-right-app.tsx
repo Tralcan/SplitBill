@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
 
 const initialState = {
   success: false,
@@ -206,13 +205,10 @@ export function SplitItRightApp() {
         onIncreaseFontSize={handleIncreaseFontSize}
         onDecreaseFontSize={handleDecreaseFontSize}
         onUpdateItemPrice={handleUpdateItemPrice}
+        onAddItem={() => setIsAddItemDialogOpen(true)}
       />
 
-      <div className="flex justify-between items-center pt-4">
-        <Button variant="outline" onClick={() => setIsAddItemDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Añadir Artículo
-        </Button>
+      <div className="flex justify-end items-center pt-4">
         <Button variant="outline" onClick={handleReset}>Reiniciar y Empezar de Nuevo</Button>
       </div>
 
