@@ -33,20 +33,20 @@ export function SplitItRightApp() {
         dinerId: null,
         isPaid: false,
       }));
-      const initialDiner = { id: crypto.randomUUID(), name: 'Diner 1' };
+      const initialDiner = { id: crypto.randomUUID(), name: 'Persona 1' };
 
       setItems(initialItems);
       setDiners([initialDiner]);
       setCurrentDinerId(initialDiner.id);
       setAppState('splitting');
       toast({
-        title: "Success!",
-        description: "Your receipt has been processed.",
+        title: "¡Éxito!",
+        description: "Tu recibo ha sido procesado.",
       })
     } else if (state.error) {
       toast({
         variant: 'destructive',
-        title: 'Oh no! Something went wrong.',
+        title: '¡Oh no! Algo salió mal.',
         description: state.error,
       });
     }
@@ -69,7 +69,7 @@ export function SplitItRightApp() {
   }, [items, diners]);
 
   const handleAddDiner = () => {
-    const newDiner = { id: crypto.randomUUID(), name: `Diner ${diners.length + 1}` };
+    const newDiner = { id: crypto.randomUUID(), name: `Persona ${diners.length + 1}` };
     setDiners([...diners, newDiner]);
     setCurrentDinerId(newDiner.id);
   };
@@ -124,9 +124,9 @@ export function SplitItRightApp() {
       
       {totals.isSettled && (
         <div className="p-6 text-center bg-green-100 border-2 border-dashed rounded-lg border-primary dark:bg-green-900/50">
-          <h2 className="text-2xl font-bold text-primary">All Settled Up! 🎉</h2>
-          <p className="mt-2 text-muted-foreground">Great job, the bill is fully paid.</p>
-          <Button onClick={handleReset} className="mt-4">Start New Bill</Button>
+          <h2 className="text-2xl font-bold text-primary">¡Todo Pagado! 🎉</h2>
+          <p className="mt-2 text-muted-foreground">Buen trabajo, la cuenta está completamente pagada.</p>
+          <Button onClick={handleReset} className="mt-4">Comenzar Nueva Cuenta</Button>
         </div>
       )}
 
@@ -148,7 +148,7 @@ export function SplitItRightApp() {
       />
 
       <div className="flex justify-end pt-4">
-        <Button variant="outline" onClick={handleReset}>Reset and Start Over</Button>
+        <Button variant="outline" onClick={handleReset}>Reiniciar y Empezar de Nuevo</Button>
       </div>
     </div>
   );

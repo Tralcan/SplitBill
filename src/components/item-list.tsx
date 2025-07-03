@@ -23,7 +23,7 @@ export function ItemList({
 }: ItemListProps) {
   if (items.length === 0) {
     return (
-      <p className="text-center text-muted-foreground py-8">No items on this receipt.</p>
+      <p className="text-center text-muted-foreground py-8">No hay artículos en este recibo.</p>
     );
   }
 
@@ -32,7 +32,7 @@ export function ItemList({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <List className="w-5 h-5"/>
-          Receipt Items
+          Artículos del Recibo
         </CardTitle>
       </CardHeader>
       <CardContent>

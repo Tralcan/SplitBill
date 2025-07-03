@@ -26,7 +26,7 @@ export function ItemCard({
   const assignedDiner = item.dinerId ? diners.find((d) => d.id === item.dinerId) : null;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(amount);
   };
   
   const canBeClaimed = !item.dinerId;
@@ -44,7 +44,10 @@ export function ItemCard({
         <p className={cn('font-medium', item.isPaid && 'line-through')}>
           {item.name}
         </p>
-        <div className="flex items-center gap-2">
+        <p className={cn('text-sm text-muted-foreground', item.isPaid && 'line-through')}>
+          {item.description}
+        </p>
+        <div className="flex items-center gap-2 pt-1">
             <span className={cn('text-sm font-semibold text-primary', item.isPaid && 'line-through')}>
                 {formatCurrency(item.price)}
             </span>
@@ -65,7 +68,7 @@ export function ItemCard({
               disabled={!currentDinerId || item.isPaid}
             >
               <Hand className="mr-2 h-4 w-4" />
-              Claim
+              Reclamar
             </Button>
         )}
         {isClaimedByCurrentUser && (
@@ -76,7 +79,7 @@ export function ItemCard({
               disabled={item.isPaid}
             >
               <Undo2 className="mr-2 h-4 w-4" />
-              Release
+              Soltar
             </Button>
         )}
 
@@ -85,9 +88,9 @@ export function ItemCard({
             id={`paid-switch-${item.id}`}
             checked={item.isPaid}
             onCheckedChange={() => onTogglePaid(item.id)}
-            aria-label="Mark as paid"
+            aria-label="Marcar como pagado"
           />
-          <Label htmlFor={`paid-switch-${item.id}`} className={cn('text-sm', item.isPaid && 'text-muted-foreground')}>Paid</Label>
+          <Label htmlFor={`paid-switch-${item.id}`} className={cn('text-sm', item.isPaid && 'text-muted-foreground')}>Pagado</Label>
         </div>
       </div>
     </div>

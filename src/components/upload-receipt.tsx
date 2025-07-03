@@ -38,8 +38,8 @@ export function UploadReceipt({ formAction }: UploadReceiptProps) {
   return (
     <Card className="w-full max-w-lg mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl">Split a New Bill</CardTitle>
-        <CardDescription>Upload a photo of your receipt to get started.</CardDescription>
+        <CardTitle className="text-2xl">Dividir una Nueva Cuenta</CardTitle>
+        <CardDescription>Sube una foto de tu recibo para comenzar.</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-6">
@@ -60,12 +60,12 @@ export function UploadReceipt({ formAction }: UploadReceiptProps) {
             <input type="hidden" name="photoDataUri" value={photoDataUri} />
 
             {preview ? (
-              <Image src={preview} alt="Receipt preview" layout="fill" objectFit="contain" className="rounded-md" />
+              <Image src={preview} alt="Vista previa del recibo" layout="fill" objectFit="contain" className="rounded-md" />
             ) : (
               <div className="text-center">
                 <UploadCloud className="w-12 h-12 mx-auto" />
-                <p className="mt-2 font-semibold">Click to upload a receipt</p>
-                <p className="text-xs">PNG, JPG, or WEBP accepted</p>
+                <p className="mt-2 font-semibold">Haz clic para subir un recibo</p>
+                <p className="text-xs">Se aceptan PNG, JPG o WEBP</p>
               </div>
             )}
           </div>
@@ -74,12 +74,12 @@ export function UploadReceipt({ formAction }: UploadReceiptProps) {
             {pending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
+                Procesando...
               </>
             ) : (
               <>
                 <ImageIcon className="mr-2 h-4 w-4" />
-                Scan Receipt Items
+                Escanear Artículos del Recibo
               </>
             )}
           </Button>

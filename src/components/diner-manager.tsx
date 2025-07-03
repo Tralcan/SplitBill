@@ -34,7 +34,7 @@ export function DinerManager({
   onRemoveDiner,
 }: DinerManagerProps) {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('es-ES', {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
@@ -44,7 +44,7 @@ export function DinerManager({
     <div>
       <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
         <User className="w-5 h-5" />
-        Who's Paying?
+        ¿Quién Paga?
       </h2>
       <div className="flex items-center gap-2">
         <Tabs value={currentDinerId ?? ''} onValueChange={setCurrentDinerId} className="w-full">
@@ -64,15 +64,15 @@ export function DinerManager({
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will remove {diner.name} and unassign all their items. This action cannot be undone.
+                        Esto eliminará a {diner.name} y desasignará todos sus artículos. Esta acción no se puede deshacer.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
                       <AlertDialogAction onClick={() => onRemoveDiner(diner.id)}>
-                        Remove Diner
+                        Eliminar Persona
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -82,7 +82,7 @@ export function DinerManager({
             ))}
              <Button variant="outline" size="sm" onClick={onAddDiner} className="ml-2">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Diner
+                Añadir Persona
               </Button>
           </TabsList>
         </Tabs>

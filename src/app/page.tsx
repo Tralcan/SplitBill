@@ -9,7 +9,7 @@ export default function Home() {
         <SplitItRightApp />
       </main>
       <footer className="w-full p-4 text-center text-muted-foreground text-sm">
-        <p>&copy; {new Date().getFullYear()} Split It Right. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Divide La Cuenta. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

@@ -23,6 +23,7 @@ const ExtractItemsFromReceiptOutputSchema = z.array(
   z.object({
     item: z.string().describe('The name of the item.'),
     price: z.number().describe('The price of the item.'),
+    description: z.string().describe('A brief, one-sentence description of the item.'),
   })
 );
 export type ExtractItemsFromReceiptOutput = z.infer<typeof ExtractItemsFromReceiptOutputSchema>;
@@ -35,7 +36,7 @@ const prompt = ai.definePrompt({
   name: 'extractItemsFromReceiptPrompt',
   input: {schema: ExtractItemsFromReceiptInputSchema},
   output: {schema: ExtractItemsFromReceiptOutputSchema},
-  prompt: `You are an expert in extracting items and prices from restaurant receipts.\n\nAnalyze the receipt image and extract all the items and their corresponding prices. Return the data as a JSON array.\n\nReceipt Image: {{media url=photoDataUri}}\n`,
+  prompt: `You are an expert in extracting items and prices from restaurant receipts.\n\nAnalyze the receipt image and extract all the items, their corresponding prices, and a short, one-sentence description for each item. Return the data as a JSON array.\n\nReceipt Image: {{media url=photoDataUri}}\n`,
 });
 
 const extractItemsFromReceiptFlow = ai.defineFlow(
