@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'MyBill',
+  title: 'Split it Right',
   description: 'Divide la cuenta del restaurante con amigos sin esfuerzo.',
 };
 
