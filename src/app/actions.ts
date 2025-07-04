@@ -36,9 +36,13 @@ export async function handleReceiptUpload(
     return { success: true, data: result };
   } catch (error) {
     console.error('Error extracting receipt items:', error);
+    
+    // Provide a more helpful error message, especially for production environments like Vercel.
+    const errorMessage = "Error al procesar el recibo. Esto puede deberse a que la API Key de Google no está configurada. Por favor, asegúrate de haberla añadido en los ajustes de 'Environment Variables' de tu proyecto en Vercel.";
+    
     return {
       success: false,
-      error: 'Failed to process the receipt. Please try again with a clearer image.',
+      error: errorMessage,
     };
   }
 }
