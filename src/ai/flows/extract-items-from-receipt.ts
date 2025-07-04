@@ -24,7 +24,7 @@ const ExtractItemsFromReceiptOutputSchema = z.object({
     z.object({
       item: z.string().describe('The name of the item.'),
       price: z.number().describe('The price of the item.'),
-      description: z.string().describe('A brief, one-sentence description of the item.'),
+      description: z.string().describe('A fun, one-sentence comment about the item.'),
     })
   ),
   language: z.string().describe("The primary language of the receipt as a two-letter ISO 639-1 code (e.g., 'en' for English, 'es' for Spanish)."),
@@ -39,11 +39,11 @@ const prompt = ai.definePrompt({
   name: 'extractItemsFromReceiptPrompt',
   input: {schema: ExtractItemsFromReceiptInputSchema},
   output: {schema: ExtractItemsFromReceiptOutputSchema},
-  prompt: `You are an expert in analyzing restaurant receipts. The receipt can be in any language.
+  prompt: `You are an expert in analyzing restaurant receipts with a fun and witty personality. The receipt can be in any language.
 
 Analyze the receipt image and do the following:
 1.  Identify the primary language of the text on the receipt. Return it as a two-letter ISO 639-1 code (e.g., 'en' for English, 'es' for Spanish).
-2.  Extract all the items, their corresponding prices, and a short, one-sentence description for each item. Do not include tips or service charges unless they are explicitly listed as an item.
+2.  Extract all the items and their corresponding prices. For the 'description' field of each item, generate a fun, witty, or celebratory one-sentence comment about consuming that item, in the same language as the receipt. For example, for "Pisco Sour", you could write "¡Salud por ese pisco sour!". For "Cheesecake", something like "Un dulce final para una gran comida.". Do not include tips or service charges unless they are explicitly listed as an item.
 3.  **Handle Quantities and Price Division**: If a line item on the receipt indicates a quantity greater than one (e.g., "2x Cerveza 9.800"), you must do two things:
     a.  **Expand the Item**: Create a separate item entry in the output 'items' array for each unit. For "2x Cerveza", you will create two entries.
     b.  **Divide the Price**: The price shown on that line is the *total price* for all units. You must divide this total price by the quantity to get the correct price for each individual, expanded item. For example, if the line is "2 x Cerveza 9.800", you must first parse the number (e.g., to 9800), then calculate the unit price as 9800 / 2 = 4900. The output should then be two distinct objects: \`{ "item": "Cerveza", "price": 4900, "description": "..." }\` and \`{ "item": "Cerveza", "price": 4900, "description": "..." }\`. The price for each expanded item *must be the price per single unit*.
