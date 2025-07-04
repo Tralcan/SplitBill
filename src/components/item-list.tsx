@@ -2,7 +2,6 @@
 
 import type { Diner, Item } from '@/lib/types';
 import { ItemCard } from '@/components/item-card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { List, ZoomIn, ZoomOut, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -53,23 +52,23 @@ export function ItemList({
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <p className="text-center text-muted-foreground h-[400px] flex items-center justify-center">No hay artículos en este recibo.</p>
+          <div className="flex items-center justify-center py-16 text-center text-muted-foreground">
+            <p>No hay artículos en este recibo.</p>
+          </div>
         ) : (
-          <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-3">
-              {items.map((item) => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  diners={diners}
-                  currentDinerId={currentDinerId}
-                  onAssignItem={onAssignItem}
-                  onTogglePaid={onTogglePaid}
-                  onUpdateItemPrice={onUpdateItemPrice}
-                />
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="space-y-3">
+            {items.map((item) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                diners={diners}
+                currentDinerId={currentDinerId}
+                onAssignItem={onAssignItem}
+                onTogglePaid={onTogglePaid}
+                onUpdateItemPrice={onUpdateItemPrice}
+              />
+            ))}
+          </div>
         )}
       </CardContent>
       <CardFooter className="justify-end">

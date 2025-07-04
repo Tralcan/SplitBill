@@ -84,10 +84,10 @@ export function DinerManager({
         <Tabs value={currentDinerId ?? ''} onValueChange={setCurrentDinerId} className="w-full">
           <TabsList className="h-auto p-1 flex-wrap">
             {diners.map((diner) => (
-              <div key={diner.id} className="relative group">
-                <TabsTrigger value={diner.id} className="flex-col h-auto p-2 data-[state=active]:shadow-md">
+              <div key={diner.id} className="relative group p-0.5">
+                <TabsTrigger value={diner.id} className="flex-col h-auto p-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">
                    <span className="font-semibold">{diner.name}</span>
-                   <span className="text-xs text-muted-foreground font-normal group-data-[state=active]:text-primary">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
+                   <span className="text-xs font-normal text-muted-foreground group-data-[state=active]:text-primary-foreground/80">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
                 </TabsTrigger>
                 
                 <div className="absolute top-0 right-0.5 flex items-center -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
