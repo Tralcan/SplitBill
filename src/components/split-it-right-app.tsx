@@ -250,7 +250,7 @@ export function SplitItRightApp() {
 
     if (diners.length > 0) {
         const dinerLines = diners.map(diner => {
-            const stats = totals.dinerStats[diner.id] || { total: 0, calories: 0 };
+            const stats = totals.dinerStats[diner.id] || { total: 0 };
             return `${diner.name}: ${formatCurrency(stats.total)}`;
         });
         
