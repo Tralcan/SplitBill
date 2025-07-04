@@ -12,6 +12,7 @@ export default function Home() {
       </main>
       <footer className="w-full p-4 border-t text-muted-foreground text-sm">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p>© 2025 Developed by Diego Anguita.</p>
           <div className="flex items-center gap-2">
             <p className="italic">Si te gustó, no dudes en</p>
             <a href="https://www.buymeacoffee.com/6hxrhhkvhs2" target="_blank" rel="noopener noreferrer">
@@ -21,7 +22,6 @@ export default function Home() {
                 </Button>
             </a>
           </div>
-          <p>© 2025 Developed by Diego Anguita.</p>
         </div>
       </footer>
     </div>
