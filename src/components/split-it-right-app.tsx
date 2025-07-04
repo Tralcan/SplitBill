@@ -125,15 +125,22 @@ export function SplitItRightApp() {
   };
 
   const handleTogglePaid = (itemId: string) => {
-    setItems(
-      items.map((item) => {
-        if (item.id === itemId) {
-          const isNowPaid = !item.isPaid;
-          return { ...item, isPaid: isNowPaid };
-        }
-        return item;
-      })
-    );
+    const clickedItem = items.find(item => item.id === itemId);
+    if (!clickedItem) return;
+
+    const isNowBeingPaid = !clickedItem.isPaid;
+
+    // If we are marking as paid, and the item belongs to a diner, mark all of their items as paid.
+    if (isNowBeingPaid && clickedItem.dinerId) {
+      setItems(items.map(item => 
+        item.dinerId === clickedItem.dinerId ? { ...item, isPaid: true } : item
+      ));
+    } else {
+      // Otherwise (un-marking, or item has no diner), just toggle the individual item.
+      setItems(items.map(item => 
+        item.id === itemId ? { ...item, isPaid: isNowBeingPaid } : item
+      ));
+    }
   };
   
   const handleUpdateItemPrice = (itemId: string, newPrice: number) => {
