@@ -75,19 +75,19 @@ export function DinerManager({
   };
 
   return (
-    <div>
+    <div className="overflow-x-auto pb-4">
       <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
         <User className="w-5 h-5" />
         ¿Quién Paga?
       </h2>
       <div className="flex items-center gap-2">
         <Tabs value={currentDinerId ?? ''} onValueChange={setCurrentDinerId} className="w-full">
-          <TabsList className="h-auto p-1 flex-wrap">
+          <TabsList className="h-auto p-1 flex-wrap sm:flex-nowrap">
             {diners.map((diner) => (
               <div key={diner.id} className="relative group p-0.5">
-                <TabsTrigger value={diner.id} className="flex-col h-auto p-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">
+                <TabsTrigger value={diner.id} className="flex-col h-auto p-2 gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-transform">
                    <span className="font-semibold">{diner.name}</span>
-                   <span className="text-xs font-normal text-muted-foreground group-data-[state=active]:text-primary-foreground/80">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
+                   <span className="text-sm font-semibold text-primary group-data-[state=active]:text-primary-foreground">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
                 </TabsTrigger>
                 
                 <div className="absolute top-0 right-0.5 flex items-center -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -143,7 +143,7 @@ export function DinerManager({
             ))}
             <AlertDialog open={isAddingDiner} onOpenChange={(isOpen) => { setIsAddingDiner(isOpen); if (!isOpen) setNewDinerName(''); }}>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm" className="ml-2">
+                <Button variant="outline" size="sm" className="ml-2 flex-shrink-0">
                   <Plus className="mr-2 h-4 w-4" />
                   Añadir Persona
                 </Button>
