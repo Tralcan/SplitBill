@@ -85,11 +85,11 @@ export function DinerManager({
               <TabsList className="h-auto p-1 flex-wrap sm:flex-nowrap">
                 {diners.map((diner) => (
                   <div key={diner.id} className="relative group p-0.5">
-                    <TabsTrigger value={diner.id} className="flex-col h-auto p-2 gap-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-transform">
+                    <TabsTrigger value={diner.id} className="group/tab flex-col h-auto p-2 gap-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-transform">
                       <span className="font-semibold">{diner.name}</span>
                       <span className="font-bold text-base">{formatCurrency(dinerStats[diner.id]?.total ?? 0)}</span>
                       {(dinerStats[diner.id]?.calories ?? 0) > 0 && (
-                        <span className="text-xs flex items-center gap-1 text-muted-foreground data-[state=active]:text-primary-foreground">
+                        <span className="text-xs flex items-center gap-1 text-muted-foreground group-data-[state=active]/tab:text-primary-foreground">
                           <Flame className="w-3 h-3"/>
                           {Math.round(dinerStats[diner.id].calories)} Cal
                         </span>
