@@ -89,7 +89,7 @@ export function DinerManager({
                       <span className="font-semibold">{diner.name}</span>
                       <span className="font-bold text-base">{formatCurrency(dinerStats[diner.id]?.total ?? 0)}</span>
                       {(dinerStats[diner.id]?.calories ?? 0) > 0 && (
-                        <span className="text-xs flex items-center gap-1 text-muted-foreground data-[state=active]:text-primary-foreground/80">
+                        <span className="text-xs flex items-center gap-1 text-muted-foreground data-[state=active]:text-primary-foreground">
                           <Flame className="w-3 h-3"/>
                           {Math.round(dinerStats[diner.id].calories)} Cal
                         </span>
