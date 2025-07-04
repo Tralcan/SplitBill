@@ -240,20 +240,26 @@ export function SplitItRightApp() {
     
     const header = `Restaurant ${today}`;
     const totalLine = `Total: ${formatCurrency(totals.discountedTotal)}${discount > 0 ? ` (${formatCurrency(totals.billTotal)})` : ''}`;
-    const discountLine = discount > 0 ? `Descuento: ${discount}%` : '';
+    const discountLine = discount > 0 ? `_Descuento: ${discount}%_` : '';
 
-    const dinerLines = diners.map(diner => {
-        const stats = totals.dinerStats[diner.id] || { total: 0, calories: 0 };
-        return `${diner.name}: ${formatCurrency(stats.total)} (aprox. ${Math.round(stats.calories)} cal)`;
-    });
-
-    const textToCopy = [
+    const textLines = [
         header,
         totalLine,
         discountLine,
-        '', // blank line
-        ...dinerLines
-    ].filter(line => line !== '').join('\n');
+    ];
+
+    if (diners.length > 0) {
+        const dinerLines = diners.map(diner => {
+            const stats = totals.dinerStats[diner.id] || { total: 0, calories: 0 };
+            return `${diner.name}: ${formatCurrency(stats.total)}`;
+        });
+        
+        textLines.push('');
+        textLines.push('*Total por Persona*');
+        textLines.push(...dinerLines);
+    }
+
+    const textToCopy = textLines.filter(line => line !== '').join('\n');
 
     try {
         await navigator.clipboard.writeText(textToCopy);
@@ -270,7 +276,6 @@ export function SplitItRightApp() {
         });
     }
   };
-
 
   const handleReset = () => {
     setItems([]);
