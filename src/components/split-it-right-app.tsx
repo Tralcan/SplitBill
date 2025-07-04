@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Camera } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import Image from 'next/image';
 
 const playSuccessSound = () => {
   if (typeof window === 'undefined') return;
@@ -56,6 +57,7 @@ export function SplitItRightApp() {
   const [newItemDescription, setNewItemDescription] = useState('');
   const [receiptLanguage, setReceiptLanguage] = useState('es');
   const [discount, setDiscount] = useState(0);
+  const [showScreenshotDialog, setShowScreenshotDialog] = useState<string | null>(null);
 
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
@@ -249,12 +251,13 @@ export function SplitItRightApp() {
         const canvas = await html2canvas(screenshotRef.current, {
             useCORS: true,
             scale: 2,
-            backgroundColor: null,
+            backgroundColor: null, // Transparent background
         });
 
         canvas.toBlob(async (blob) => {
             if (blob) {
                 try {
+                    // This is the part that fails on Safari iOS
                     await navigator.clipboard.write([
                         new ClipboardItem({ 'image/png': blob })
                     ]);
@@ -263,12 +266,9 @@ export function SplitItRightApp() {
                         description: 'La captura de pantalla se ha copiado al portapapeles.',
                     });
                 } catch (err) {
-                    console.error('Error al copiar al portapapeles:', err);
-                    toast({
-                        variant: 'destructive',
-                        title: 'Error al copiar',
-                        description: 'Tu navegador no soporta copiar imágenes directamente o se denegó el permiso.',
-                    });
+                    // WORKAROUND: If direct copy fails, show a dialog for manual copy.
+                    console.error('Error al copiar al portapapeles, mostrando diálogo alternativo:', err);
+                    setShowScreenshotDialog(canvas.toDataURL('image/png'));
                 }
             } else {
                  toast({
@@ -402,6 +402,34 @@ export function SplitItRightApp() {
           <DialogFooter>
             <Button onClick={handleAddNewItem} disabled={!isNewItemFormValid}>Guardar Artículo</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={!!showScreenshotDialog} onOpenChange={(isOpen) => !isOpen && setShowScreenshotDialog(null)}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Copiar Pantallazo</DialogTitle>
+                <DialogDescription>
+                    Tu navegador no permite la copia directa. Por favor, mantén presionada la imagen para copiarla manualmente.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="my-4 flex justify-center">
+                {showScreenshotDialog && (
+                    <Image
+                        src={showScreenshotDialog}
+                        alt="Captura de la cuenta dividida"
+                        width={400}
+                        height={600}
+                        style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+                        className="rounded-lg border"
+                    />
+                )}
+            </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setShowScreenshotDialog(null)}>
+                    Cerrar
+                </Button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
