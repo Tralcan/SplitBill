@@ -91,14 +91,18 @@ export function SplitItRightApp() {
     const discountedPaidTotal = paidTotal * discountMultiplier;
     const discountedRemainingTotal = discountedBillTotal - discountedPaidTotal;
 
-    const dinerTotals = diners.reduce((acc, diner) => {
-      const dinerUndiscountedTotal = items
-        .filter((item) => item.dinerId === diner.id)
-        .reduce((sum, item) => sum + item.price, 0);
+    const dinerStats = diners.reduce((acc, diner) => {
+      const dinerItems = items.filter((item) => item.dinerId === diner.id);
       
-      acc[diner.id] = dinerUndiscountedTotal * discountMultiplier;
+      const total = dinerItems.reduce((sum, item) => sum + item.price, 0);
+      const calories = dinerItems.reduce((sum, item) => sum + item.calories, 0);
+      
+      acc[diner.id] = {
+        total: total * discountMultiplier,
+        calories: calories,
+      };
       return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<string, { total: number; calories: number }>);
 
     const isSettled = discountedRemainingTotal <= 0.01 && discountedBillTotal > 0;
 
@@ -108,7 +112,7 @@ export function SplitItRightApp() {
       paidTotal: discountedPaidTotal,
       remainingTotal: discountedRemainingTotal,
       isSettled,
-      dinerTotals,
+      dinerStats,
     };
   }, [items, diners, discount]);
 
@@ -175,6 +179,7 @@ export function SplitItRightApp() {
             description: newItemDescription.trim(),
             dinerId: null,
             isPaid: false,
+            calories: 0,
         };
         setItems(prevItems => [...prevItems, newItem]);
         setIsAddItemDialogOpen(false);
@@ -227,7 +232,7 @@ export function SplitItRightApp() {
         diners={diners}
         currentDinerId={currentDinerId}
         setCurrentDinerId={setCurrentDinerId}
-        dinerTotals={totals.dinerTotals}
+        dinerStats={totals.dinerStats}
         onAddDiner={handleAddDiner}
         onRemoveDiner={handleRemoveDiner}
         onUpdateDinerName={handleUpdateDinerName}

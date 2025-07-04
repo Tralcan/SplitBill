@@ -3,7 +3,7 @@
 import type { Diner } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, User, X, Pencil } from 'lucide-react';
+import { Plus, User, X, Pencil, Flame } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +23,7 @@ type DinerManagerProps = {
   diners: Diner[];
   currentDinerId: string | null;
   setCurrentDinerId: (id: string | null) => void;
-  dinerTotals: Record<string, number>;
+  dinerStats: Record<string, { total: number; calories: number }>;
   onAddDiner: (name: string) => void;
   onRemoveDiner: (id: string) => void;
   onUpdateDinerName: (id: string, name: string) => void;
@@ -35,7 +35,7 @@ export function DinerManager({
   diners,
   currentDinerId,
   setCurrentDinerId,
-  dinerTotals,
+  dinerStats,
   onAddDiner,
   onRemoveDiner,
   onUpdateDinerName,
@@ -87,7 +87,13 @@ export function DinerManager({
                   <div key={diner.id} className="relative group p-0.5">
                     <TabsTrigger value={diner.id} className="flex-col h-auto p-2 gap-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-transform">
                       <span className="font-semibold">{diner.name}</span>
-                      <span className="font-bold text-base">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
+                      <span className="font-bold text-base">{formatCurrency(dinerStats[diner.id]?.total ?? 0)}</span>
+                      {(dinerStats[diner.id]?.calories ?? 0) > 0 && (
+                        <span className="text-xs flex items-center gap-1 text-muted-foreground data-[state=active]:text-primary-foreground/80">
+                          <Flame className="w-3 h-3"/>
+                          {Math.round(dinerStats[diner.id].calories)} Cal
+                        </span>
+                      )}
                     </TabsTrigger>
                     
                     <div className="absolute top-0 right-0.5 flex items-center -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -172,7 +178,7 @@ export function DinerManager({
             </Tabs>
         </div>
         {discount > 0 && (
-            <p className="text-sm italic text-muted-foreground mt-2">
+            <p className="text-sm italic text-muted-foreground mt-2 text-left">
                 El descuento será aplicado a cada persona
             </p>
         )}
