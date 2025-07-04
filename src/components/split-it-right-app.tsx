@@ -15,6 +15,29 @@ import { Label } from '@/components/ui/label';
 import { Camera } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
+const playSuccessSound = () => {
+  if (typeof window === 'undefined') return;
+  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  if (!audioContext) {
+    console.warn("Web Audio API is not supported in this browser.");
+    return;
+  }
+
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note for a pleasant ping
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.5);
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.5);
+};
+
 const initialState = {
   success: false,
   error: '',
@@ -37,6 +60,7 @@ export function SplitItRightApp() {
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
   const screenshotRef = useRef<HTMLDivElement>(null);
+  const prevRemainingTotal = useRef<number | null>(null);
 
   useEffect(() => {
     const scales = [0.8, 0.9, 1.0, 1.15, 1.3];
@@ -138,6 +162,19 @@ export function SplitItRightApp() {
       dinerStats,
     };
   }, [items, diners, discount]);
+
+  useEffect(() => {
+    // Only play sound on the transition from not-fully-paid to fully-paid
+    const isFullyAssigned = totals.discountedTotal > 0 && totals.remainingTotal <= 0.01;
+    const wasPreviouslyNotFullyAssigned = prevRemainingTotal.current === null || prevRemainingTotal.current > 0.01;
+    
+    if (isFullyAssigned && wasPreviouslyNotFullyAssigned) {
+      playSuccessSound();
+    }
+    
+    // Store current remaining total for the next render
+    prevRemainingTotal.current = totals.remainingTotal;
+  }, [totals.remainingTotal, totals.discountedTotal]);
 
   const handleAddDiner = (name: string) => {
     const newDiner = { id: crypto.randomUUID(), name };
@@ -259,6 +296,7 @@ export function SplitItRightApp() {
     setAppState('idle');
     setReceiptLanguage('es');
     setDiscount(0);
+    prevRemainingTotal.current = null;
   }
 
   if (appState === 'idle') {
