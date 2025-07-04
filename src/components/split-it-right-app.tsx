@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useActionState, useRef } from 'react';
+import { useState, useMemo, useEffect, useActionState, useRef, useCallback } from 'react';
 import type { Diner, Item } from '@/lib/types';
 import { UploadReceipt } from '@/components/upload-receipt';
 import { BillSummary } from '@/components/bill-summary';
@@ -14,29 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ClipboardCopy } from 'lucide-react';
 import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
-
-const playSuccessSound = () => {
-  if (typeof window === 'undefined') return;
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  if (!audioContext) {
-    console.warn("Web Audio API is not supported in this browser.");
-    return;
-  }
-
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-
-  oscillator.type = 'sine';
-  oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note for a pleasant ping
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.5);
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.5);
-};
 
 const initialState = {
   success: false,
@@ -61,6 +38,50 @@ export function SplitItRightApp() {
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
   const prevRemainingTotal = useRef<number | null>(null);
   const formatCurrency = useCurrencyFormatter(receiptLanguage);
+  
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  // This function initializes and "unlocks" the AudioContext.
+  // Mobile browsers require a user gesture to start playing audio.
+  const unlockAudio = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    if (audioContextRef.current && audioContextRef.current.state === 'running') return;
+    
+    if (!audioContextRef.current) {
+        try {
+            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        } catch (e) {
+            console.error("Web Audio API is not supported in this browser.", e);
+            return;
+        }
+    }
+    
+    if (audioContextRef.current.state === 'suspended') {
+        audioContextRef.current.resume().catch(e => console.error("Could not resume AudioContext", e));
+    }
+  }, []);
+
+  const playSuccessSound = useCallback(() => {
+    const audioContext = audioContextRef.current;
+    if (!audioContext || audioContext.state !== 'running') {
+      console.warn("AudioContext not running or not initialized. Cannot play sound.");
+      return;
+    }
+  
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+  
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+  
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.5);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+  }, []);
 
   useEffect(() => {
     const scales = [0.8, 0.9, 1.0, 1.15, 1.3];
@@ -151,7 +172,6 @@ export function SplitItRightApp() {
 
     const discountedBillTotal = billTotal * discountMultiplier;
     
-    // Total asignado es la suma de los totales de cada persona
     const totalAssignedInDinerStats = Object.values(dinerStats).reduce((sum, stats) => sum + stats.total, 0);
 
     return {
@@ -164,7 +184,6 @@ export function SplitItRightApp() {
   }, [items, diners, discount]);
 
   useEffect(() => {
-    // Only play sound on the transition from not-fully-paid to fully-paid
     const isFullyAssigned = totals.discountedTotal > 0 && totals.remainingTotal <= 0.01;
     const wasPreviouslyNotFullyAssigned = prevRemainingTotal.current === null || prevRemainingTotal.current > 0.01;
     
@@ -172,11 +191,11 @@ export function SplitItRightApp() {
       playSuccessSound();
     }
     
-    // Store current remaining total for the next render
     prevRemainingTotal.current = totals.remainingTotal;
-  }, [totals.remainingTotal, totals.discountedTotal]);
+  }, [totals.remainingTotal, totals.discountedTotal, playSuccessSound]);
 
   const handleAddDiner = (name: string) => {
+    unlockAudio();
     const newDiner = { id: crypto.randomUUID(), name };
     setDiners([...diners, newDiner]);
     setCurrentDinerId(newDiner.id);
@@ -197,6 +216,7 @@ export function SplitItRightApp() {
   };
 
   const handleAssignItem = (itemId: string, dinerId: string | null) => {
+    unlockAudio();
     setItems(
       items.map((item) =>
         item.id === itemId ? { ...item, dinerId: dinerId } : item
@@ -205,6 +225,7 @@ export function SplitItRightApp() {
   };
   
   const handleUpdateItemPrice = (itemId: string, newPrice: number) => {
+    unlockAudio();
     setItems(
       items.map((item) =>
         item.id === itemId ? { ...item, price: newPrice } : item
@@ -213,6 +234,7 @@ export function SplitItRightApp() {
   };
 
   const handleAddNewItem = () => {
+    unlockAudio();
     const price = parseFloat(newItemPrice);
     if (newItemName.trim() && !isNaN(price) && price >= 0) {
         const newItem: Item = {
@@ -234,10 +256,14 @@ export function SplitItRightApp() {
   const handleRemoveItem = (itemId: string) => {
     setItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
+  
+  const handleDiscountChange = (value: number) => {
+    unlockAudio();
+    setDiscount(value);
+  };
 
   const handleCopyToClipboard = async () => {
     const today = new Date().toLocaleDateString(receiptLanguage === 'es' ? 'es-ES' : 'en-US');
-    
     const header = `Restaurant ${today}`;
     const totalLine = `Total: ${formatCurrency(totals.discountedTotal)}${discount > 0 ? ` (${formatCurrency(totals.billTotal)})` : ''}`;
     
@@ -298,7 +324,7 @@ export function SplitItRightApp() {
           remainingTotal={totals.remainingTotal}
           language={receiptLanguage}
           discount={discount}
-          onDiscountChange={setDiscount}
+          onDiscountChange={handleDiscountChange}
         />
 
         <DinerManager
