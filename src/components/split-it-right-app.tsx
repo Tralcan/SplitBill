@@ -240,26 +240,21 @@ export function SplitItRightApp() {
     
     const header = `Restaurant ${today}`;
     const totalLine = `Total: ${formatCurrency(totals.discountedTotal)}${discount > 0 ? ` (${formatCurrency(totals.billTotal)})` : ''}`;
-    const discountLine = discount > 0 ? `_Descuento: ${discount}%_` : '';
+    
+    let textToCopy = `${header}\n${totalLine}`;
 
-    const textLines = [
-        header,
-        totalLine,
-        discountLine,
-    ];
+    if (discount > 0) {
+      textToCopy += `\n_Descuento: ${discount}%_`;
+    }
 
     if (diners.length > 0) {
         const dinerLines = diners.map(diner => {
             const stats = totals.dinerStats[diner.id] || { total: 0 };
             return `${diner.name}: ${formatCurrency(stats.total)}`;
-        });
+        }).join('\n');
         
-        textLines.push('');
-        textLines.push('*Total por Persona*');
-        textLines.push(...dinerLines);
+        textToCopy += `\n\n*Total por Persona*\n${dinerLines}`;
     }
-
-    const textToCopy = textLines.filter(line => line !== '').join('\n');
 
     try {
         await navigator.clipboard.writeText(textToCopy);
