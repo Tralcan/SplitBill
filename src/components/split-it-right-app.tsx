@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useActionState } from 'react';
+import { useState, useMemo, useEffect, useActionState, useRef } from 'react';
 import type { Diner, Item } from '@/lib/types';
 import { UploadReceipt } from '@/components/upload-receipt';
 import { BillSummary } from '@/components/bill-summary';
@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Camera } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const initialState = {
   success: false,
@@ -34,6 +36,7 @@ export function SplitItRightApp() {
 
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
+  const screenshotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const scales = [0.8, 0.9, 1.0, 1.15, 1.3];
@@ -93,14 +96,15 @@ export function SplitItRightApp() {
     let assignedPriceTotal = 0;
 
     items.forEach(item => {
-      if (item.dinerId) {
-        assignedPriceTotal += item.price;
+      if (item.dinerId && item.dinerId !== '__all__') {
         if (dinerStats[item.dinerId]) {
+          assignedPriceTotal += item.price;
           dinerStats[item.dinerId].total += item.price;
           dinerStats[item.dinerId].calories += item.calories;
-        } else if (item.dinerId === '__all__') {
-          itemsToSplit.push(item);
         }
+      } else if (item.dinerId === '__all__') {
+        assignedPriceTotal += item.price;
+        itemsToSplit.push(item);
       }
     });
 
@@ -122,13 +126,15 @@ export function SplitItRightApp() {
     });
 
     const discountedBillTotal = billTotal * discountMultiplier;
-    const discountedAssignedTotal = assignedPriceTotal * discountMultiplier;
+    
+    // Total asignado es la suma de los totales de cada persona
+    const totalAssignedInDinerStats = Object.values(dinerStats).reduce((sum, stats) => sum + stats.total, 0);
 
     return {
       billTotal,
       discountedTotal: discountedBillTotal,
-      assignedTotal: discountedAssignedTotal,
-      remainingTotal: discountedBillTotal - discountedAssignedTotal,
+      assignedTotal: totalAssignedInDinerStats,
+      remainingTotal: discountedBillTotal - totalAssignedInDinerStats,
       dinerStats,
     };
   }, [items, diners, discount]);
@@ -192,6 +198,60 @@ export function SplitItRightApp() {
     setItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
 
+  const handleScreenshot = async () => {
+    if (!screenshotRef.current) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'No se pudo encontrar el contenido para capturar.',
+        });
+        return;
+    }
+
+    try {
+        const canvas = await html2canvas(screenshotRef.current, {
+            useCORS: true,
+            scale: 2,
+            backgroundColor: null,
+        });
+
+        canvas.toBlob(async (blob) => {
+            if (blob) {
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]);
+                    toast({
+                        title: '¡Copiado!',
+                        description: 'La captura de pantalla se ha copiado al portapapeles.',
+                    });
+                } catch (err) {
+                    console.error('Error al copiar al portapapeles:', err);
+                    toast({
+                        variant: 'destructive',
+                        title: 'Error al copiar',
+                        description: 'Tu navegador no soporta copiar imágenes directamente o se denegó el permiso.',
+                    });
+                }
+            } else {
+                 toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: 'No se pudo generar la imagen para copiar.',
+                });
+            }
+        }, 'image/png');
+    } catch (error) {
+        console.error('Error al generar la captura:', error);
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Ocurrió un problema al generar la captura de pantalla.',
+        });
+    }
+  };
+
+
   const handleReset = () => {
     setItems([]);
     setDiners([]);
@@ -209,41 +269,47 @@ export function SplitItRightApp() {
 
   return (
     <div className="space-y-6">
-      <BillSummary
-        billTotal={totals.billTotal}
-        discountedTotal={totals.discountedTotal}
-        assignedTotal={totals.assignedTotal}
-        remainingTotal={totals.remainingTotal}
-        language={receiptLanguage}
-        discount={discount}
-        onDiscountChange={setDiscount}
-      />
+      <div ref={screenshotRef} className="space-y-6 bg-background rounded-lg p-2">
+        <BillSummary
+          billTotal={totals.billTotal}
+          discountedTotal={totals.discountedTotal}
+          assignedTotal={totals.assignedTotal}
+          remainingTotal={totals.remainingTotal}
+          language={receiptLanguage}
+          discount={discount}
+          onDiscountChange={setDiscount}
+        />
 
-      <DinerManager
-        diners={diners}
-        currentDinerId={currentDinerId}
-        setCurrentDinerId={setCurrentDinerId}
-        dinerStats={totals.dinerStats}
-        onAddDiner={handleAddDiner}
-        onRemoveDiner={handleRemoveDiner}
-        onUpdateDinerName={handleUpdateDinerName}
-        language={receiptLanguage}
-        discount={discount}
-      />
-      
-      <ItemList
-        items={items}
-        diners={diners}
-        onAssignItem={handleAssignItem}
-        onIncreaseFontSize={handleIncreaseFontSize}
-        onDecreaseFontSize={handleDecreaseFontSize}
-        onUpdateItemPrice={handleUpdateItemPrice}
-        onAddItem={() => setIsAddItemDialogOpen(true)}
-        onRemoveItem={handleRemoveItem}
-        language={receiptLanguage}
-      />
+        <DinerManager
+          diners={diners}
+          currentDinerId={currentDinerId}
+          setCurrentDinerId={setCurrentDinerId}
+          dinerStats={totals.dinerStats}
+          onAddDiner={handleAddDiner}
+          onRemoveDiner={handleRemoveDiner}
+          onUpdateDinerName={handleUpdateDinerName}
+          language={receiptLanguage}
+          discount={discount}
+        />
+        
+        <ItemList
+          items={items}
+          diners={diners}
+          onAssignItem={handleAssignItem}
+          onIncreaseFontSize={handleIncreaseFontSize}
+          onDecreaseFontSize={handleDecreaseFontSize}
+          onUpdateItemPrice={handleUpdateItemPrice}
+          onAddItem={() => setIsAddItemDialogOpen(true)}
+          onRemoveItem={handleRemoveItem}
+          language={receiptLanguage}
+        />
+      </div>
 
-      <div className="flex justify-end items-center pt-4">
+      <div className="flex justify-end items-center pt-4 gap-2">
+        <Button onClick={handleScreenshot}>
+          <Camera className="mr-2 h-4 w-4" />
+          Copiar Pantallazo
+        </Button>
         <Button variant="outline" onClick={handleReset}>Reiniciar y Empezar de Nuevo</Button>
       </div>
 
