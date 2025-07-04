@@ -30,6 +30,7 @@ export function SplitItRightApp() {
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemDescription, setNewItemDescription] = useState('');
   const [receiptLanguage, setReceiptLanguage] = useState('es');
+  const [discount, setDiscount] = useState(0);
 
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
@@ -83,18 +84,33 @@ export function SplitItRightApp() {
   const totals = useMemo(() => {
     const billTotal = items.reduce((sum, item) => sum + item.price, 0);
     const paidTotal = items.filter((i) => i.isPaid).reduce((sum, item) => sum + item.price, 0);
-    const remainingTotal = billTotal - paidTotal;
-    const isSettled = remainingTotal <= 0 && billTotal > 0;
+
+    const discountMultiplier = 1 - (discount / 100);
+
+    const discountedBillTotal = billTotal * discountMultiplier;
+    const discountedPaidTotal = paidTotal * discountMultiplier;
+    const discountedRemainingTotal = discountedBillTotal - discountedPaidTotal;
 
     const dinerTotals = diners.reduce((acc, diner) => {
-      acc[diner.id] = items
+      const dinerUndiscountedTotal = items
         .filter((item) => item.dinerId === diner.id)
         .reduce((sum, item) => sum + item.price, 0);
+      
+      acc[diner.id] = dinerUndiscountedTotal * discountMultiplier;
       return acc;
     }, {} as Record<string, number>);
 
-    return { billTotal, paidTotal, remainingTotal, isSettled, dinerTotals };
-  }, [items, diners]);
+    const isSettled = discountedRemainingTotal <= 0.01 && discountedBillTotal > 0;
+
+    return {
+      billTotal,
+      discountedTotal: discountedBillTotal,
+      paidTotal: discountedPaidTotal,
+      remainingTotal: discountedRemainingTotal,
+      isSettled,
+      dinerTotals,
+    };
+  }, [items, diners, discount]);
 
   const handleAddDiner = (name: string) => {
     const newDiner = { id: crypto.randomUUID(), name };
@@ -130,13 +146,11 @@ export function SplitItRightApp() {
 
     const isNowBeingPaid = !clickedItem.isPaid;
 
-    // If we are marking as paid, and the item belongs to a diner, mark all of their items as paid.
     if (isNowBeingPaid && clickedItem.dinerId) {
       setItems(items.map(item => 
         item.dinerId === clickedItem.dinerId ? { ...item, isPaid: true } : item
       ));
     } else {
-      // Otherwise (un-marking, or item has no diner), just toggle the individual item.
       setItems(items.map(item => 
         item.id === itemId ? { ...item, isPaid: isNowBeingPaid } : item
       ));
@@ -180,6 +194,7 @@ export function SplitItRightApp() {
     setCurrentDinerId(null);
     setAppState('idle');
     setReceiptLanguage('es');
+    setDiscount(0);
   }
 
   if (appState === 'idle') {
@@ -190,7 +205,15 @@ export function SplitItRightApp() {
 
   return (
     <div className="space-y-6">
-      <BillSummary {...totals} language={receiptLanguage} />
+      <BillSummary
+        billTotal={totals.billTotal}
+        discountedTotal={totals.discountedTotal}
+        paidTotal={totals.paidTotal}
+        remainingTotal={totals.remainingTotal}
+        language={receiptLanguage}
+        discount={discount}
+        onDiscountChange={setDiscount}
+      />
       
       {totals.isSettled && (
         <div className="p-6 text-center bg-green-100 border-2 border-dashed rounded-lg border-primary dark:bg-green-900/50">
@@ -209,6 +232,7 @@ export function SplitItRightApp() {
         onRemoveDiner={handleRemoveDiner}
         onUpdateDinerName={handleUpdateDinerName}
         language={receiptLanguage}
+        discount={discount}
       />
       
       <ItemList
