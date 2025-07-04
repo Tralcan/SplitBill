@@ -39,7 +39,19 @@ const prompt = ai.definePrompt({
   name: 'extractItemsFromReceiptPrompt',
   input: {schema: ExtractItemsFromReceiptInputSchema},
   output: {schema: ExtractItemsFromReceiptOutputSchema},
-  prompt: `You are an expert in analyzing restaurant receipts. The receipt can be in any language.\n\nAnalyze the receipt image and do the following:\n1. Identify the primary language of the text on the receipt. Return it as a two-letter ISO 639-1 code (e.g., 'en' for English, 'es' for Spanish).\n2. Extract all the items, their corresponding prices, and a short, one-sentence description for each item.\n\nReturn the data as a single JSON object with a 'language' field and an 'items' field containing an array of the extracted items.\n\nReceipt Image: {{media url=photoDataUri}}\n`,
+  prompt: `You are an expert in analyzing restaurant receipts. The receipt can be in any language.
+
+Analyze the receipt image and do the following:
+1.  Identify the primary language of the text on the receipt. Return it as a two-letter ISO 639-1 code (e.g., 'en' for English, 'es' for Spanish).
+2.  Extract all the items, their corresponding prices, and a short, one-sentence description for each item.
+3.  **Crucially, handle prices according to the language:**
+    *   **For non-English languages (like Spanish 'es'):** Prices often use '.' as a thousands separator and not for decimals. Treat the price as a whole number by removing all separators. For example, a price written as "12.345" should be interpreted and returned as the number \`12345\`. A price written as "2.500" should be \`2500\`.
+    *   **For English ('en'):** Prices use '.' as a decimal separator. Interpret them as standard decimal numbers. For example, "$12.99" should be returned as the number \`12.99\`.
+
+Return the data as a single JSON object with a 'language' field and an 'items' field containing an array of the extracted items, with prices formatted as numbers according to these rules.
+
+Receipt Image: {{media url=photoDataUri}}
+`,
 });
 
 const extractItemsFromReceiptFlow = ai.defineFlow(

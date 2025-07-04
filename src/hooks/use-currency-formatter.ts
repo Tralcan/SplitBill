@@ -8,8 +8,9 @@ export function useCurrencyFormatter(language: string) {
         currency: 'USD',
       }).format(amount);
     } else {
-      const roundedAmount = Math.round(amount);
-      const formattedNumber = new Intl.NumberFormat('es-CL').format(roundedAmount);
+      // For CLP (Chilean Peso), we expect whole numbers from the AI.
+      // We format it according to Chilean standards.
+      const formattedNumber = new Intl.NumberFormat('es-CL').format(amount);
       return `$ ${formattedNumber}`;
     }
   }, [language]);
