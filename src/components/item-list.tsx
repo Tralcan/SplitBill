@@ -16,6 +16,7 @@ type ItemListProps = {
   onDecreaseFontSize: () => void;
   onUpdateItemPrice: (itemId: string, newPrice: number) => void;
   onAddItem: () => void;
+  language: string;
 };
 
 export function ItemList({
@@ -28,6 +29,7 @@ export function ItemList({
   onDecreaseFontSize,
   onUpdateItemPrice,
   onAddItem,
+  language,
 }: ItemListProps) {
 
   return (
@@ -66,6 +68,7 @@ export function ItemList({
                 onAssignItem={onAssignItem}
                 onTogglePaid={onTogglePaid}
                 onUpdateItemPrice={onUpdateItemPrice}
+                language={language}
               />
             ))}
           </div>

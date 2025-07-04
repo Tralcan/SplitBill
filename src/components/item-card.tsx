@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Hand, Undo2, Pencil } from 'lucide-react';
 import { Input } from './ui/input';
+import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
 
 type ItemCardProps = {
   item: Item;
@@ -17,6 +18,7 @@ type ItemCardProps = {
   onAssignItem: (itemId: string, dinerId: string | null) => void;
   onTogglePaid: (itemId: string) => void;
   onUpdateItemPrice: (itemId: string, newPrice: number) => void;
+  language: string;
 };
 
 export function ItemCard({
@@ -26,16 +28,14 @@ export function ItemCard({
   onAssignItem,
   onTogglePaid,
   onUpdateItemPrice,
+  language,
 }: ItemCardProps) {
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [priceStr, setPriceStr] = useState(item.price.toFixed(2));
   const inputRef = useRef<HTMLInputElement>(null);
+  const formatCurrency = useCurrencyFormatter(language);
 
   const assignedDiner = item.dinerId ? diners.find((d) => d.id === item.dinerId) : null;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(amount);
-  };
   
   const isClaimed = !!item.dinerId;
   const isClaimedByCurrentUser = item.dinerId === currentDinerId;

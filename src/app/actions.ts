@@ -30,7 +30,7 @@ export async function handleReceiptUpload(
 
   try {
     const result = await extractItemsFromReceipt(validatedInput.data);
-    if (!result || result.length === 0) {
+    if (!result || !result.items || result.items.length === 0) {
       return { success: false, error: 'Could not detect any items. Please try a clearer picture.' };
     }
     return { success: true, data: result };

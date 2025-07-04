@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 const initialState = {
   success: false,
   error: '',
-  data: [],
+  data: { items: [], language: 'es' },
 };
 
 export function SplitItRightApp() {
@@ -29,6 +29,7 @@ export function SplitItRightApp() {
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemDescription, setNewItemDescription] = useState('');
+  const [receiptLanguage, setReceiptLanguage] = useState('es');
 
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
@@ -53,7 +54,7 @@ export function SplitItRightApp() {
 
   useEffect(() => {
     if (state.success && state.data) {
-      const initialItems: Item[] = state.data.map((item) => ({
+      const initialItems: Item[] = state.data.items.map((item) => ({
         ...item,
         id: crypto.randomUUID(),
         name: item.item,
@@ -62,6 +63,7 @@ export function SplitItRightApp() {
       }));
 
       setItems(initialItems);
+      setReceiptLanguage(state.data.language || 'es');
       setDiners([]);
       setCurrentDinerId(null);
       setAppState('splitting');
@@ -166,6 +168,7 @@ export function SplitItRightApp() {
     setDiners([]);
     setCurrentDinerId(null);
     setAppState('idle');
+    setReceiptLanguage('es');
   }
 
   if (appState === 'idle') {
@@ -176,7 +179,7 @@ export function SplitItRightApp() {
 
   return (
     <div className="space-y-6">
-      <BillSummary {...totals} />
+      <BillSummary {...totals} language={receiptLanguage} />
       
       {totals.isSettled && (
         <div className="p-6 text-center bg-green-100 border-2 border-dashed rounded-lg border-primary dark:bg-green-900/50">
@@ -194,6 +197,7 @@ export function SplitItRightApp() {
         onAddDiner={handleAddDiner}
         onRemoveDiner={handleRemoveDiner}
         onUpdateDinerName={handleUpdateDinerName}
+        language={receiptLanguage}
       />
       
       <ItemList
@@ -206,6 +210,7 @@ export function SplitItRightApp() {
         onDecreaseFontSize={handleDecreaseFontSize}
         onUpdateItemPrice={handleUpdateItemPrice}
         onAddItem={() => setIsAddItemDialogOpen(true)}
+        language={receiptLanguage}
       />
 
       <div className="flex justify-end items-center pt-4">

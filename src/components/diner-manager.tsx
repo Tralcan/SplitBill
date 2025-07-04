@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import React from 'react';
 import { Input } from './ui/input';
+import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
 
 type DinerManagerProps = {
   diners: Diner[];
@@ -26,6 +27,7 @@ type DinerManagerProps = {
   onAddDiner: (name: string) => void;
   onRemoveDiner: (id: string) => void;
   onUpdateDinerName: (id: string, name: string) => void;
+  language: string;
 };
 
 export function DinerManager({
@@ -36,11 +38,13 @@ export function DinerManager({
   onAddDiner,
   onRemoveDiner,
   onUpdateDinerName,
+  language,
 }: DinerManagerProps) {
   const [editingDiner, setEditingDiner] = React.useState<Diner | null>(null);
   const [newName, setNewName] = React.useState('');
   const [isAddingDiner, setIsAddingDiner] = React.useState(false);
   const [newDinerName, setNewDinerName] = React.useState('');
+  const formatCurrency = useCurrencyFormatter(language);
 
   const handleSaveName = () => {
     if (editingDiner && newName.trim()) {
@@ -67,13 +71,6 @@ export function DinerManager({
     setIsAddingDiner(false);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
-
   return (
     <div className="pb-4">
       <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
@@ -87,7 +84,7 @@ export function DinerManager({
               <div key={diner.id} className="relative group p-0.5">
                 <TabsTrigger value={diner.id} className="flex-col h-auto p-2 gap-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-transform">
                    <span className="font-semibold">{diner.name}</span>
-                   <span className="text-sm font-semibold">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
+                   <span className="font-bold text-base">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
                 </TabsTrigger>
                 
                 <div className="absolute top-0 right-0.5 flex items-center -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -2,22 +2,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
 
 type BillSummaryProps = {
   billTotal: number;
   paidTotal: number;
   remainingTotal: number;
+  language: string;
 };
 
-export function BillSummary({ billTotal, paidTotal, remainingTotal }: BillSummaryProps) {
+export function BillSummary({ billTotal, paidTotal, remainingTotal, language }: BillSummaryProps) {
   const progressPercentage = billTotal > 0 ? (paidTotal / billTotal) * 100 : 0;
-  
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = useCurrencyFormatter(language);
 
   return (
     <Card>

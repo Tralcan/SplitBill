@@ -19,13 +19,16 @@ const ExtractItemsFromReceiptInputSchema = z.object({
 });
 export type ExtractItemsFromReceiptInput = z.infer<typeof ExtractItemsFromReceiptInputSchema>;
 
-const ExtractItemsFromReceiptOutputSchema = z.array(
-  z.object({
-    item: z.string().describe('The name of the item.'),
-    price: z.number().describe('The price of the item.'),
-    description: z.string().describe('A brief, one-sentence description of the item.'),
-  })
-);
+const ExtractItemsFromReceiptOutputSchema = z.object({
+  items: z.array(
+    z.object({
+      item: z.string().describe('The name of the item.'),
+      price: z.number().describe('The price of the item.'),
+      description: z.string().describe('A brief, one-sentence description of the item.'),
+    })
+  ),
+  language: z.string().describe("The primary language of the receipt as a two-letter ISO 639-1 code (e.g., 'en' for English, 'es' for Spanish)."),
+});
 export type ExtractItemsFromReceiptOutput = z.infer<typeof ExtractItemsFromReceiptOutputSchema>;
 
 export async function extractItemsFromReceipt(input: ExtractItemsFromReceiptInput): Promise<ExtractItemsFromReceiptOutput> {
@@ -36,7 +39,7 @@ const prompt = ai.definePrompt({
   name: 'extractItemsFromReceiptPrompt',
   input: {schema: ExtractItemsFromReceiptInputSchema},
   output: {schema: ExtractItemsFromReceiptOutputSchema},
-  prompt: `You are an expert in extracting items and prices from restaurant receipts. The receipt can be in any language.\n\nAnalyze the receipt image and extract all the items, their corresponding prices, and a short, one-sentence description for each item. Return the data as a JSON array.\n\nReceipt Image: {{media url=photoDataUri}}\n`,
+  prompt: `You are an expert in analyzing restaurant receipts. The receipt can be in any language.\n\nAnalyze the receipt image and do the following:\n1. Identify the primary language of the text on the receipt. Return it as a two-letter ISO 639-1 code (e.g., 'en' for English, 'es' for Spanish).\n2. Extract all the items, their corresponding prices, and a short, one-sentence description for each item.\n\nReturn the data as a single JSON object with a 'language' field and an 'items' field containing an array of the extracted items.\n\nReceipt Image: {{media url=photoDataUri}}\n`,
 });
 
 const extractItemsFromReceiptFlow = ai.defineFlow(
