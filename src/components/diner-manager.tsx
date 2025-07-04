@@ -75,19 +75,19 @@ export function DinerManager({
   };
 
   return (
-    <div className="overflow-x-auto pb-4">
+    <div className="pb-4">
       <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
         <User className="w-5 h-5" />
         ¿Quién Paga?
       </h2>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 overflow-x-auto">
         <Tabs value={currentDinerId ?? ''} onValueChange={setCurrentDinerId} className="w-full">
           <TabsList className="h-auto p-1 flex-wrap sm:flex-nowrap">
             {diners.map((diner) => (
               <div key={diner.id} className="relative group p-0.5">
-                <TabsTrigger value={diner.id} className="flex-col h-auto p-2 gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-transform">
+                <TabsTrigger value={diner.id} className="flex-col h-auto p-2 gap-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-transform">
                    <span className="font-semibold">{diner.name}</span>
-                   <span className="text-sm font-semibold text-primary group-data-[state=active]:text-primary-foreground">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
+                   <span className="text-sm font-semibold">{formatCurrency(dinerTotals[diner.id] ?? 0)}</span>
                 </TabsTrigger>
                 
                 <div className="absolute top-0 right-0.5 flex items-center -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
