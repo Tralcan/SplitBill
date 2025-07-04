@@ -404,31 +404,37 @@ export function SplitItRightApp() {
         </DialogContent>
       </Dialog>
       
-      <Dialog open={!!showScreenshotDialog} onOpenChange={(isOpen) => !isOpen && setShowScreenshotDialog(null)}>
-        <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-                <DialogTitle>Copiar Pantallazo</DialogTitle>
-                <DialogDescription>
-                    Tu navegador no permite la copia directa. Por favor, mantén presionada la imagen para copiarla manualmente.
-                </DialogDescription>
+      {/* Fallback for browsers that can't copy to clipboard (e.g., Safari) */}
+      {!!showScreenshotDialog && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/80 flex flex-col items-center justify-center p-4"
+          onClick={() => setShowScreenshotDialog(null)} // Click background to close
+        >
+          <div 
+            className="bg-background p-4 rounded-lg shadow-xl max-w-full max-h-full flex flex-col" 
+            onClick={e => e.stopPropagation()} // Prevent closing when clicking on the content
+          >
+            <DialogHeader className="text-center sm:text-center mb-2">
+              <DialogTitle>Copiar Pantallazo</DialogTitle>
+              <DialogDescription>
+                Mantén presionada la imagen para copiarla.
+              </DialogDescription>
             </DialogHeader>
-            <div className="my-4 flex justify-center">
-                {showScreenshotDialog && (
-                    <img
-                        src={showScreenshotDialog}
-                        alt="Captura de la cuenta dividida"
-                        style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-                        className="rounded-lg border"
-                    />
-                )}
+            <div className="flex-grow overflow-auto flex items-center justify-center">
+              <img
+                  src={showScreenshotDialog}
+                  alt="Captura de la cuenta dividida"
+                  className="max-w-full h-auto object-contain rounded-md border"
+              />
             </div>
-            <DialogFooter>
+            <DialogFooter className="mt-4 sm:justify-center">
                 <Button variant="outline" onClick={() => setShowScreenshotDialog(null)}>
                     Cerrar
                 </Button>
             </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
