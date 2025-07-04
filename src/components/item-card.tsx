@@ -160,7 +160,7 @@ export function ItemCard({
         )}
         {isClaimed && (
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
               onClick={() => onAssignItem(item.id, null)}
               disabled={item.isPaid}
