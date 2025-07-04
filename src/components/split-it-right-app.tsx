@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Camera } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { ClipboardCopy } from 'lucide-react';
+import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
 
 const playSuccessSound = () => {
   if (typeof window === 'undefined') return;
@@ -56,12 +56,11 @@ export function SplitItRightApp() {
   const [newItemDescription, setNewItemDescription] = useState('');
   const [receiptLanguage, setReceiptLanguage] = useState('es');
   const [discount, setDiscount] = useState(0);
-  const [showScreenshotDialog, setShowScreenshotDialog] = useState<string | null>(null);
 
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
-  const screenshotRef = useRef<HTMLDivElement>(null);
   const prevRemainingTotal = useRef<number | null>(null);
+  const formatCurrency = useCurrencyFormatter(receiptLanguage);
 
   useEffect(() => {
     const scales = [0.8, 0.9, 1.0, 1.15, 1.3];
@@ -236,53 +235,38 @@ export function SplitItRightApp() {
     setItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
 
-  const handleScreenshot = async () => {
-    if (!screenshotRef.current) {
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'No se pudo encontrar el contenido para capturar.',
-        });
-        return;
-    }
+  const handleCopyToClipboard = async () => {
+    const today = new Date().toLocaleDateString(receiptLanguage === 'es' ? 'es-ES' : 'en-US');
+    
+    const header = `Restaurant ${today}`;
+    const totalLine = `Total: ${formatCurrency(totals.discountedTotal)}${discount > 0 ? ` (${formatCurrency(totals.billTotal)})` : ''}`;
+    const discountLine = discount > 0 ? `Descuento: ${discount}%` : '';
+
+    const dinerLines = diners.map(diner => {
+        const stats = totals.dinerStats[diner.id] || { total: 0, calories: 0 };
+        return `${diner.name}: ${formatCurrency(stats.total)} (aprox. ${Math.round(stats.calories)} cal)`;
+    });
+
+    const textToCopy = [
+        header,
+        totalLine,
+        discountLine,
+        '', // blank line
+        ...dinerLines
+    ].filter(line => line !== '').join('\n');
 
     try {
-        const canvas = await html2canvas(screenshotRef.current, {
-            useCORS: true,
-            scale: 2,
-            backgroundColor: null, // Transparent background
+        await navigator.clipboard.writeText(textToCopy);
+        toast({
+            title: '¡Copiado!',
+            description: 'El resumen de la cuenta se ha copiado al portapapeles.',
         });
-
-        canvas.toBlob(async (blob) => {
-            if (blob) {
-                try {
-                    // This is the part that fails on Safari iOS
-                    await navigator.clipboard.write([
-                        new ClipboardItem({ 'image/png': blob })
-                    ]);
-                    toast({
-                        title: '¡Copiado!',
-                        description: 'La captura de pantalla se ha copiado al portapapeles.',
-                    });
-                } catch (err) {
-                    // WORKAROUND: If direct copy fails, show a dialog for manual copy.
-                    console.error('Error al copiar al portapapeles, mostrando diálogo alternativo:', err);
-                    setShowScreenshotDialog(canvas.toDataURL('image/png'));
-                }
-            } else {
-                 toast({
-                    variant: 'destructive',
-                    title: 'Error',
-                    description: 'No se pudo generar la imagen para copiar.',
-                });
-            }
-        }, 'image/png');
     } catch (error) {
-        console.error('Error al generar la captura:', error);
+        console.error('Error al copiar el texto:', error);
         toast({
             variant: 'destructive',
-            title: 'Error',
-            description: 'Ocurrió un problema al generar la captura de pantalla.',
+            title: 'Error al copiar',
+            description: 'No se pudo copiar el resumen. Inténtalo de nuevo.',
         });
     }
   };
@@ -306,7 +290,7 @@ export function SplitItRightApp() {
 
   return (
     <div className="space-y-6">
-      <div ref={screenshotRef} className="space-y-6 bg-background rounded-lg p-2">
+      <div className="space-y-6 bg-background rounded-lg p-2">
         <BillSummary
           billTotal={totals.billTotal}
           discountedTotal={totals.discountedTotal}
@@ -343,9 +327,9 @@ export function SplitItRightApp() {
       </div>
 
       <div className="flex justify-end items-center pt-4 gap-2">
-        <Button onClick={handleScreenshot}>
-          <Camera className="mr-2 h-4 w-4" />
-          Copiar Pantallazo
+        <Button onClick={handleCopyToClipboard}>
+          <ClipboardCopy className="mr-2 h-4 w-4" />
+          Copiar Resumen
         </Button>
         <Button variant="outline" onClick={handleReset}>Empezar de nuevo</Button>
       </div>
@@ -403,38 +387,6 @@ export function SplitItRightApp() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
-      {/* Fallback for browsers that can't copy to clipboard (e.g., Safari) */}
-      {!!showScreenshotDialog && (
-        <div 
-          className="fixed inset-0 z-[100] bg-black/80 flex flex-col items-center justify-center p-4"
-          onClick={() => setShowScreenshotDialog(null)} // Click background to close
-        >
-          <div 
-            className="bg-background p-4 rounded-lg shadow-xl max-w-full max-h-full flex flex-col" 
-            onClick={e => e.stopPropagation()} // Prevent closing when clicking on the content
-          >
-            <DialogHeader className="text-center sm:text-center mb-2">
-              <DialogTitle>Copiar Pantallazo</DialogTitle>
-              <DialogDescription>
-                Mantén presionada la imagen para copiarla.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex-grow overflow-auto flex items-center justify-center">
-              <img
-                  src={showScreenshotDialog}
-                  alt="Captura de la cuenta dividida"
-                  className="max-w-full h-auto object-contain rounded-md border"
-              />
-            </div>
-            <DialogFooter className="mt-4 sm:justify-center">
-                <Button variant="outline" onClick={() => setShowScreenshotDialog(null)}>
-                    Cerrar
-                </Button>
-            </DialogFooter>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
