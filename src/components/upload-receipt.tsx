@@ -22,6 +22,7 @@ function FormContents() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      console.log(`Original file size: ${Math.round(file.size / 1024)} KB`);
       const reader = new FileReader();
       reader.onload = (e) => {
         if (!e.target?.result) return;
@@ -29,8 +30,8 @@ function FormContents() {
         const img = document.createElement('img');
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1280;
-          const MAX_HEIGHT = 1280;
+          const MAX_WIDTH = 1024;
+          const MAX_HEIGHT = 1024;
           let width = img.width;
           let height = img.height;
 
@@ -54,8 +55,11 @@ function FormContents() {
 
           ctx.drawImage(img, 0, 0, width, height);
           
-          // Use JPEG for better compression of photos, with a quality of 85%
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          // Use JPEG for better compression of photos, with a quality of 75%
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          const dataUriSizeInKB = Math.round(dataUrl.length / 1024);
+          console.log(`Compressed data URI size: ${dataUriSizeInKB} KB`);
+          
           setPreview(dataUrl);
           setPhotoDataUri(dataUrl);
         };
