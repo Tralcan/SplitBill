@@ -79,7 +79,7 @@ export function DinerManager({
         <User className="w-5 h-5" />
         ¿Quién Paga?
       </h2>
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col gap-2">
         <div className="w-full overflow-x-auto">
             <Tabs value={currentDinerId ?? ''} onValueChange={setCurrentDinerId} className="w-full">
               <TabsList className="h-auto p-1 flex-wrap sm:flex-nowrap">
@@ -173,7 +173,7 @@ export function DinerManager({
         </div>
         {discount > 0 && (
             <p className="text-sm italic text-muted-foreground mt-2">
-                Descuento aplicado a cada persona
+                El descuento será aplicado a cada persona
             </p>
         )}
       </div>
