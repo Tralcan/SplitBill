@@ -12,9 +12,8 @@ export default function Home() {
       </main>
       <footer className="w-full p-4 border-t text-muted-foreground text-sm">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p>© 2025 Split it Right. All rights reserved. Developed by Diego Anguita.</p>
-          <div className="flex flex-col items-center sm:items-end gap-2">
-            <p className="italic">Si te gustó, no dudes en comprarme un café.</p>
+          <div className="flex items-center gap-2">
+            <p className="italic">Si te gustó, no dudes en</p>
             <a href="https://www.buymeacoffee.com/6hxrhhkvhs2" target="_blank" rel="noopener noreferrer">
                 <Button size="sm" className="bg-[#FFDD00] text-black hover:bg-[#FFDD00]/90 focus-visible:ring-[#FFDD00]">
                     <Coffee className="mr-2 h-4 w-4" />
@@ -22,6 +21,7 @@ export default function Home() {
                 </Button>
             </a>
           </div>
+          <p>© 2025 Developed by Diego Anguita.</p>
         </div>
       </footer>
     </div>
