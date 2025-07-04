@@ -12,9 +12,9 @@ export default function Home() {
       </main>
       <footer className="w-full p-4 border-t text-muted-foreground text-sm">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p>&copy; {new Date().getFullYear()} SplitBill. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} MyBill. Todos los derechos reservados.</p>
           <a href="https://www.buymeacoffee.com/6hxrhhkvhs2" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm">
+              <Button size="sm" className="bg-[#FFDD00] text-black hover:bg-[#FFDD00]/90 focus-visible:ring-[#FFDD00]">
                   <Coffee className="mr-2 h-4 w-4" />
                   Cómprame un café
               </Button>
