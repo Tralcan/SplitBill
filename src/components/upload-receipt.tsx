@@ -22,7 +22,6 @@ function FormContents() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      console.log(`Original file size: ${Math.round(file.size / 1024)} KB`);
       const reader = new FileReader();
       reader.onload = (e) => {
         if (!e.target?.result) return;
@@ -57,8 +56,6 @@ function FormContents() {
           
           // Use JPEG for better compression of photos, with a quality of 75%
           const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-          const dataUriSizeInKB = Math.round(dataUrl.length / 1024);
-          console.log(`Compressed data URI size: ${dataUriSizeInKB} KB`);
           
           setPreview(dataUrl);
           setPhotoDataUri(dataUrl);
@@ -82,7 +79,6 @@ function FormContents() {
       >
         <Input
           id="receipt-upload"
-          name="receipt-upload"
           ref={fileInputRef}
           type="file"
           className="hidden"
