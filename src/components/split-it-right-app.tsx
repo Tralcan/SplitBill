@@ -348,7 +348,7 @@ export function SplitItRightApp() {
           <Camera className="mr-2 h-4 w-4" />
           Copiar Pantallazo
         </Button>
-        <Button variant="outline" onClick={handleReset}>Reiniciar y Empezar de Nuevo</Button>
+        <Button variant="outline" onClick={handleReset}>Empezar de nuevo</Button>
       </div>
 
       <Dialog open={isAddItemDialogOpen} onOpenChange={setIsAddItemDialogOpen}>
