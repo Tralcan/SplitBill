@@ -14,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Camera } from 'lucide-react';
 import html2canvas from 'html2canvas';
-import Image from 'next/image';
 
 const playSuccessSound = () => {
   if (typeof window === 'undefined') return;
@@ -415,11 +414,9 @@ export function SplitItRightApp() {
             </DialogHeader>
             <div className="my-4 flex justify-center">
                 {showScreenshotDialog && (
-                    <Image
+                    <img
                         src={showScreenshotDialog}
                         alt="Captura de la cuenta dividida"
-                        width={400}
-                        height={600}
                         style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
                         className="rounded-lg border"
                     />
