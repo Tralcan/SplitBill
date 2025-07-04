@@ -163,6 +163,10 @@ export function SplitItRightApp() {
     }
   };
 
+  const handleRemoveItem = (itemId: string) => {
+    setItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  };
+
   const handleReset = () => {
     setItems([]);
     setDiners([]);
@@ -210,6 +214,7 @@ export function SplitItRightApp() {
         onDecreaseFontSize={handleDecreaseFontSize}
         onUpdateItemPrice={handleUpdateItemPrice}
         onAddItem={() => setIsAddItemDialogOpen(true)}
+        onRemoveItem={handleRemoveItem}
         language={receiptLanguage}
       />
 

@@ -16,6 +16,7 @@ type ItemListProps = {
   onDecreaseFontSize: () => void;
   onUpdateItemPrice: (itemId: string, newPrice: number) => void;
   onAddItem: () => void;
+  onRemoveItem: (itemId: string) => void;
   language: string;
 };
 
@@ -29,6 +30,7 @@ export function ItemList({
   onDecreaseFontSize,
   onUpdateItemPrice,
   onAddItem,
+  onRemoveItem,
   language,
 }: ItemListProps) {
 
@@ -68,6 +70,7 @@ export function ItemList({
                 onAssignItem={onAssignItem}
                 onTogglePaid={onTogglePaid}
                 onUpdateItemPrice={onUpdateItemPrice}
+                onRemoveItem={onRemoveItem}
                 language={language}
               />
             ))}

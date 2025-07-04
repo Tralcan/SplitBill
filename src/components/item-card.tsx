@@ -3,13 +3,24 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Diner, Item } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Hand, Undo2, Pencil } from 'lucide-react';
+import { Hand, Undo2, Pencil, Trash2 } from 'lucide-react';
 import { Input } from './ui/input';
 import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 type ItemCardProps = {
   item: Item;
@@ -18,6 +29,7 @@ type ItemCardProps = {
   onAssignItem: (itemId: string, dinerId: string | null) => void;
   onTogglePaid: (itemId: string) => void;
   onUpdateItemPrice: (itemId: string, newPrice: number) => void;
+  onRemoveItem: (itemId: string) => void;
   language: string;
 };
 
@@ -28,6 +40,7 @@ export function ItemCard({
   onAssignItem,
   onTogglePaid,
   onUpdateItemPrice,
+  onRemoveItem,
   language,
 }: ItemCardProps) {
   const [isEditingPrice, setIsEditingPrice] = useState(false);
@@ -157,14 +170,40 @@ export function ItemCard({
             </Button>
         )}
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 border-l pl-4">
           <Switch
             id={`paid-switch-${item.id}`}
             checked={item.isPaid}
             onCheckedChange={() => onTogglePaid(item.id)}
             aria-label="Marcar como pagado"
+            disabled={!isClaimed}
           />
-          <Label htmlFor={`paid-switch-${item.id}`} className={cn('text-sm', item.isPaid && 'text-muted-foreground')}>Pagado</Label>
+          <Label htmlFor={`paid-switch-${item.id}`} className={cn('text-sm', item.isPaid && 'text-muted-foreground', !isClaimed && 'text-muted-foreground/50')}>Pagado</Label>
+           <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10" disabled={item.isPaid}>
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">Eliminar artículo</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Eliminar este artículo?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esto eliminará permanentemente "{item.name}" de la lista. Esta acción no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    className={buttonVariants({ variant: "destructive" })}
+                    onClick={() => onRemoveItem(item.id)}
+                  >
+                    Eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
         </div>
       </div>
     </div>
