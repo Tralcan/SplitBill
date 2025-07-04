@@ -60,7 +60,6 @@ export function SplitItRightApp() {
         id: crypto.randomUUID(),
         name: item.item,
         dinerId: null,
-        isPaid: false,
       }));
 
       setItems(initialItems);
@@ -83,35 +82,53 @@ export function SplitItRightApp() {
 
   const totals = useMemo(() => {
     const billTotal = items.reduce((sum, item) => sum + item.price, 0);
-    const paidTotal = items.filter((i) => i.isPaid).reduce((sum, item) => sum + item.price, 0);
-
     const discountMultiplier = 1 - (discount / 100);
 
-    const discountedBillTotal = billTotal * discountMultiplier;
-    const discountedPaidTotal = paidTotal * discountMultiplier;
-    const discountedRemainingTotal = discountedBillTotal - discountedPaidTotal;
-
     const dinerStats = diners.reduce((acc, diner) => {
-      const dinerItems = items.filter((item) => item.dinerId === diner.id);
-      
-      const total = dinerItems.reduce((sum, item) => sum + item.price, 0);
-      const calories = dinerItems.reduce((sum, item) => sum + item.calories, 0);
-      
-      acc[diner.id] = {
-        total: total * discountMultiplier,
-        calories: calories,
-      };
+      acc[diner.id] = { total: 0, calories: 0 };
       return acc;
     }, {} as Record<string, { total: number; calories: number }>);
 
-    const isSettled = discountedRemainingTotal <= 0.01 && discountedBillTotal > 0;
+    const itemsToSplit: Item[] = [];
+    let assignedPriceTotal = 0;
+
+    items.forEach(item => {
+      if (item.dinerId) {
+        assignedPriceTotal += item.price;
+        if (dinerStats[item.dinerId]) {
+          dinerStats[item.dinerId].total += item.price;
+          dinerStats[item.dinerId].calories += item.calories;
+        } else if (item.dinerId === '__all__') {
+          itemsToSplit.push(item);
+        }
+      }
+    });
+
+    if (diners.length > 0) {
+      itemsToSplit.forEach(item => {
+        const pricePerDiner = item.price / diners.length;
+        const caloriesPerDiner = item.calories / diners.length;
+        diners.forEach(diner => {
+          if (dinerStats[diner.id]) {
+            dinerStats[diner.id].total += pricePerDiner;
+            dinerStats[diner.id].calories += caloriesPerDiner;
+          }
+        });
+      });
+    }
+
+    Object.keys(dinerStats).forEach(dinerId => {
+      dinerStats[dinerId].total *= discountMultiplier;
+    });
+
+    const discountedBillTotal = billTotal * discountMultiplier;
+    const discountedAssignedTotal = assignedPriceTotal * discountMultiplier;
 
     return {
       billTotal,
       discountedTotal: discountedBillTotal,
-      paidTotal: discountedPaidTotal,
-      remainingTotal: discountedRemainingTotal,
-      isSettled,
+      assignedTotal: discountedAssignedTotal,
+      remainingTotal: discountedBillTotal - discountedAssignedTotal,
       dinerStats,
     };
   }, [items, diners, discount]);
@@ -143,23 +160,6 @@ export function SplitItRightApp() {
       )
     );
   };
-
-  const handleTogglePaid = (itemId: string) => {
-    const clickedItem = items.find(item => item.id === itemId);
-    if (!clickedItem) return;
-
-    const isNowBeingPaid = !clickedItem.isPaid;
-
-    if (isNowBeingPaid && clickedItem.dinerId) {
-      setItems(items.map(item => 
-        item.dinerId === clickedItem.dinerId ? { ...item, isPaid: true } : item
-      ));
-    } else {
-      setItems(items.map(item => 
-        item.id === itemId ? { ...item, isPaid: isNowBeingPaid } : item
-      ));
-    }
-  };
   
   const handleUpdateItemPrice = (itemId: string, newPrice: number) => {
     setItems(
@@ -178,7 +178,6 @@ export function SplitItRightApp() {
             price: price,
             description: newItemDescription.trim(),
             dinerId: null,
-            isPaid: false,
             calories: 0,
         };
         setItems(prevItems => [...prevItems, newItem]);
@@ -213,20 +212,12 @@ export function SplitItRightApp() {
       <BillSummary
         billTotal={totals.billTotal}
         discountedTotal={totals.discountedTotal}
-        paidTotal={totals.paidTotal}
+        assignedTotal={totals.assignedTotal}
         remainingTotal={totals.remainingTotal}
         language={receiptLanguage}
         discount={discount}
         onDiscountChange={setDiscount}
       />
-      
-      {totals.isSettled && (
-        <div className="p-6 text-center bg-green-100 border-2 border-dashed rounded-lg border-primary dark:bg-green-900/50">
-          <h2 className="text-2xl font-bold text-primary">¡Todo Pagado! 🎉</h2>
-          <p className="mt-2 text-muted-foreground">Buen trabajo, la cuenta está completamente pagada.</p>
-          <Button onClick={handleReset} className="mt-4">Comenzar Nueva Cuenta</Button>
-        </div>
-      )}
 
       <DinerManager
         diners={diners}
@@ -243,9 +234,7 @@ export function SplitItRightApp() {
       <ItemList
         items={items}
         diners={diners}
-        currentDinerId={currentDinerId}
         onAssignItem={handleAssignItem}
-        onTogglePaid={handleTogglePaid}
         onIncreaseFontSize={handleIncreaseFontSize}
         onDecreaseFontSize={handleDecreaseFontSize}
         onUpdateItemPrice={handleUpdateItemPrice}

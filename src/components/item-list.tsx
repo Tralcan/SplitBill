@@ -9,9 +9,7 @@ import { Button } from '@/components/ui/button';
 type ItemListProps = {
   items: Item[];
   diners: Diner[];
-  currentDinerId: string | null;
   onAssignItem: (itemId: string, dinerId: string | null) => void;
-  onTogglePaid: (itemId: string) => void;
   onIncreaseFontSize: () => void;
   onDecreaseFontSize: () => void;
   onUpdateItemPrice: (itemId: string, newPrice: number) => void;
@@ -23,9 +21,7 @@ type ItemListProps = {
 export function ItemList({
   items,
   diners,
-  currentDinerId,
   onAssignItem,
-  onTogglePaid,
   onIncreaseFontSize,
   onDecreaseFontSize,
   onUpdateItemPrice,
@@ -66,9 +62,7 @@ export function ItemList({
                 key={item.id}
                 item={item}
                 diners={diners}
-                currentDinerId={currentDinerId}
                 onAssignItem={onAssignItem}
-                onTogglePaid={onTogglePaid}
                 onUpdateItemPrice={onUpdateItemPrice}
                 onRemoveItem={onRemoveItem}
                 language={language}

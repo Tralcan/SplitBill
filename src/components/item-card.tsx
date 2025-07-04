@@ -4,10 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { Diner, Item } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Hand, Undo2, Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Input } from './ui/input';
 import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
 import {
@@ -20,14 +17,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type ItemCardProps = {
   item: Item;
   diners: Diner[];
-  currentDinerId: string | null;
   onAssignItem: (itemId: string, dinerId: string | null) => void;
-  onTogglePaid: (itemId: string) => void;
   onUpdateItemPrice: (itemId: string, newPrice: number) => void;
   onRemoveItem: (itemId: string) => void;
   language: string;
@@ -36,9 +32,7 @@ type ItemCardProps = {
 export function ItemCard({
   item,
   diners,
-  currentDinerId,
   onAssignItem,
-  onTogglePaid,
   onUpdateItemPrice,
   onRemoveItem,
   language,
@@ -47,12 +41,7 @@ export function ItemCard({
   const [priceStr, setPriceStr] = useState(item.price.toFixed(2));
   const inputRef = useRef<HTMLInputElement>(null);
   const formatCurrency = useCurrencyFormatter(language);
-
-  const assignedDiner = item.dinerId ? diners.find((d) => d.id === item.dinerId) : null;
   
-  const isClaimed = !!item.dinerId;
-  const isClaimedByCurrentUser = item.dinerId === currentDinerId;
-
   const handleSavePrice = () => {
     const newPrice = parseFloat(priceStr);
     if (!isNaN(newPrice) && newPrice >= 0) {
@@ -64,10 +53,8 @@ export function ItemCard({
   };
 
   const handlePriceClick = () => {
-    if (!item.isPaid) {
-      setPriceStr(item.price.toFixed(2));
-      setIsEditingPrice(true);
-    }
+    setPriceStr(item.price.toFixed(2));
+    setIsEditingPrice(true);
   };
 
   useEffect(() => {
@@ -85,16 +72,14 @@ export function ItemCard({
   return (
     <div
       className={cn(
-        'p-4 rounded-lg border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300',
-        item.isPaid ? 'bg-muted/50 opacity-60' : 'bg-card',
-        isClaimedByCurrentUser && !item.isPaid ? 'border-primary shadow-sm' : ''
+        'p-4 rounded-lg border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 bg-card'
       )}
     >
       <div className="flex-grow space-y-1 w-full">
-        <p className={cn('font-medium', item.isPaid && 'line-through')}>
+        <p className='font-medium'>
           {item.name}
         </p>
-        <p className={cn('text-sm text-muted-foreground', item.isPaid && 'line-through')}>
+        <p className='text-sm text-muted-foreground'>
           {item.description}
         </p>
         <div className="flex items-center gap-2 pt-1">
@@ -122,66 +107,46 @@ export function ItemCard({
             ) : (
                 <div
                     onClick={handlePriceClick}
-                    onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !item.isPaid) handlePriceClick() }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handlePriceClick() }}
                     role="button"
-                    tabIndex={item.isPaid ? -1 : 0}
+                    tabIndex={0}
                     aria-label="Editar precio"
                     className={cn(
-                        'flex items-center gap-1.5 p-1 -m-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                        !item.isPaid ? 'cursor-pointer hover:bg-accent' : 'cursor-default'
+                        'flex items-center gap-1.5 p-1 -m-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer hover:bg-accent'
                     )}
                 >
-                    <span className={cn('text-sm font-semibold text-primary', item.isPaid && 'line-through text-muted-foreground')}>
+                    <span className='text-sm font-semibold text-primary'>
                         {formatCurrency(item.price)}
                     </span>
-                    {!item.isPaid && <Pencil className="h-3 w-3 text-muted-foreground" />}
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
                 </div>
-            )}
-
-            {assignedDiner && (
-                <Badge variant={isClaimedByCurrentUser ? "default" : "secondary"}>
-                    {assignedDiner.name}
-                </Badge>
             )}
         </div>
       </div>
 
       <div className="flex items-center gap-4 self-end sm:self-center">
-        {!isClaimed && currentDinerId && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onAssignItem(item.id, currentDinerId)}
-              disabled={item.isPaid}
-            >
-              <Hand className="mr-2 h-4 w-4" />
-              Reclamar
-            </Button>
-        )}
-        {isClaimed && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onAssignItem(item.id, null)}
-              disabled={item.isPaid}
-            >
-              <Undo2 className="mr-2 h-4 w-4" />
-              Soltar
-            </Button>
-        )}
+        <Select
+          value={item.dinerId ?? 'null'}
+          onValueChange={(value) => onAssignItem(item.id, value === 'null' ? null : value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Asignar a..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="null">Sin asignar</SelectItem>
+            {diners.length > 0 && <SelectItem value="__all__">Todos (dividir)</SelectItem>}
+            {diners.map((diner) => (
+              <SelectItem key={diner.id} value={diner.id}>
+                {diner.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <div className="flex items-center space-x-2 border-l pl-4">
-          <Switch
-            id={`paid-switch-${item.id}`}
-            checked={item.isPaid}
-            onCheckedChange={() => onTogglePaid(item.id)}
-            aria-label="Marcar como pagado"
-            disabled={!isClaimed}
-          />
-          <Label htmlFor={`paid-switch-${item.id}`} className={cn('text-sm', item.isPaid && 'text-muted-foreground', !isClaimed && 'text-muted-foreground/50')}>Pagado</Label>
+        <div className="flex items-center border-l pl-4">
            <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10" disabled={item.isPaid}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10">
                   <Trash2 className="h-4 w-4" />
                   <span className="sr-only">Eliminar artículo</span>
                 </Button>

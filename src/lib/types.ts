@@ -5,7 +5,6 @@ export interface Item {
   calories: number;
   description: string;
   dinerId: string | null;
-  isPaid: boolean;
 }
 
 export interface Diner {

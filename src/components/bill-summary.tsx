@@ -9,15 +9,15 @@ import { Label } from '@/components/ui/label';
 type BillSummaryProps = {
   billTotal: number;
   discountedTotal: number;
-  paidTotal: number;
+  assignedTotal: number;
   remainingTotal: number;
   language: string;
   discount: number;
   onDiscountChange: (value: number) => void;
 };
 
-export function BillSummary({ billTotal, discountedTotal, paidTotal, remainingTotal, language, discount, onDiscountChange }: BillSummaryProps) {
-  const progressPercentage = discountedTotal > 0 ? (paidTotal / discountedTotal) * 100 : 0;
+export function BillSummary({ billTotal, discountedTotal, assignedTotal, remainingTotal, language, discount, onDiscountChange }: BillSummaryProps) {
+  const progressPercentage = discountedTotal > 0 ? (assignedTotal / discountedTotal) * 100 : 0;
   const formatCurrency = useCurrencyFormatter(language);
 
   const handleDiscountInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,8 +39,8 @@ export function BillSummary({ billTotal, discountedTotal, paidTotal, remainingTo
         <div className="space-y-2">
           <Progress value={progressPercentage} className="h-3" />
           <div className="flex justify-between text-sm text-muted-foreground">
-            <span>Pagado: {formatCurrency(paidTotal)}</span>
-            <span>Restante: {formatCurrency(remainingTotal)}</span>
+            <span>Asignado: {formatCurrency(assignedTotal)}</span>
+            <span>Por Asignar: {formatCurrency(remainingTotal)}</span>
           </div>
         </div>
 
