@@ -29,6 +29,7 @@ type DinerManagerProps = {
   onUpdateDinerName: (id: string, name: string) => void;
   language: string;
   discount: number;
+  billTotal: number;
 };
 
 export function DinerManager({
@@ -41,12 +42,13 @@ export function DinerManager({
   onUpdateDinerName,
   language,
   discount,
+  billTotal,
 }: DinerManagerProps) {
   const [editingDiner, setEditingDiner] = React.useState<Diner | null>(null);
   const [newName, setNewName] = React.useState('');
   const [isAddingDiner, setIsAddingDiner] = React.useState(false);
   const [newDinerName, setNewDinerName] = React.useState('');
-  const formatCurrency = useCurrencyFormatter(language);
+  const formatCurrency = useCurrencyFormatter(language, billTotal);
 
   const handleSaveName = () => {
     if (editingDiner && newName.trim()) {

@@ -16,6 +16,7 @@ type ItemListProps = {
   onAddItem: () => void;
   onRemoveItem: (itemId: string) => void;
   language: string;
+  billTotal: number;
 };
 
 export function ItemList({
@@ -28,6 +29,7 @@ export function ItemList({
   onAddItem,
   onRemoveItem,
   language,
+  billTotal,
 }: ItemListProps) {
 
   return (
@@ -66,6 +68,7 @@ export function ItemList({
                 onUpdateItemPrice={onUpdateItemPrice}
                 onRemoveItem={onRemoveItem}
                 language={language}
+                billTotal={billTotal}
               />
             ))}
           </div>

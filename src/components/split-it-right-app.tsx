@@ -37,7 +37,6 @@ export function SplitItRightApp() {
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
   const prevRemainingTotal = useRef<number | null>(null);
-  const formatCurrency = useCurrencyFormatter(receiptLanguage);
   
   const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -183,6 +182,8 @@ export function SplitItRightApp() {
     };
   }, [items, diners, discount]);
 
+  const formatCurrency = useCurrencyFormatter(receiptLanguage, totals.billTotal);
+
   useEffect(() => {
     const isFullyAssigned = totals.discountedTotal > 0 && totals.remainingTotal <= 0.01;
     const wasPreviouslyNotFullyAssigned = prevRemainingTotal.current === null || prevRemainingTotal.current > 0.01;
@@ -274,12 +275,13 @@ export function SplitItRightApp() {
     }
 
     if (diners.length > 0) {
+        textToCopy += `\n\n*Total por Persona*`;
         const dinerLines = diners.map(diner => {
             const stats = totals.dinerStats[diner.id] || { total: 0 };
             return `${diner.name}: ${formatCurrency(stats.total)}`;
         }).join('\n');
         
-        textToCopy += `\n\n*Total por Persona*\n${dinerLines}`;
+        textToCopy += `\n${dinerLines}`;
     }
 
     try {
@@ -337,6 +339,7 @@ export function SplitItRightApp() {
           onUpdateDinerName={handleUpdateDinerName}
           language={receiptLanguage}
           discount={discount}
+          billTotal={totals.billTotal}
         />
         
         <ItemList
@@ -349,6 +352,7 @@ export function SplitItRightApp() {
           onAddItem={() => setIsAddItemDialogOpen(true)}
           onRemoveItem={handleRemoveItem}
           language={receiptLanguage}
+          billTotal={totals.billTotal}
         />
       </div>
 

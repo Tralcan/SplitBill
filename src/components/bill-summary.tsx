@@ -18,7 +18,7 @@ type BillSummaryProps = {
 
 export function BillSummary({ billTotal, discountedTotal, assignedTotal, remainingTotal, language, discount, onDiscountChange }: BillSummaryProps) {
   const progressPercentage = discountedTotal > 0 ? (assignedTotal / discountedTotal) * 100 : 0;
-  const formatCurrency = useCurrencyFormatter(language);
+  const formatCurrency = useCurrencyFormatter(language, billTotal);
 
   const handleDiscountInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = parseInt(e.target.value, 10);

@@ -27,6 +27,7 @@ type ItemCardProps = {
   onUpdateItemPrice: (itemId: string, newPrice: number) => void;
   onRemoveItem: (itemId: string) => void;
   language: string;
+  billTotal: number;
 };
 
 export function ItemCard({
@@ -36,24 +37,25 @@ export function ItemCard({
   onUpdateItemPrice,
   onRemoveItem,
   language,
+  billTotal,
 }: ItemCardProps) {
   const [isEditingPrice, setIsEditingPrice] = useState(false);
-  const [priceStr, setPriceStr] = useState(item.price.toFixed(2));
+  const [priceStr, setPriceStr] = useState(String(item.price));
   const inputRef = useRef<HTMLInputElement>(null);
-  const formatCurrency = useCurrencyFormatter(language);
+  const formatCurrency = useCurrencyFormatter(language, billTotal);
   
   const handleSavePrice = () => {
     const newPrice = parseFloat(priceStr);
     if (!isNaN(newPrice) && newPrice >= 0) {
       onUpdateItemPrice(item.id, newPrice);
     } else {
-      setPriceStr(item.price.toFixed(2));
+      setPriceStr(String(item.price));
     }
     setIsEditingPrice(false);
   };
 
   const handlePriceClick = () => {
-    setPriceStr(item.price.toFixed(2));
+    setPriceStr(String(item.price));
     setIsEditingPrice(true);
   };
 
@@ -65,7 +67,7 @@ export function ItemCard({
 
   useEffect(() => {
     if (!isEditingPrice) {
-      setPriceStr(item.price.toFixed(2));
+      setPriceStr(String(item.price));
     }
   }, [item.price, isEditingPrice]);
 
@@ -96,7 +98,7 @@ export function ItemCard({
                      if (e.key === 'Enter') handleSavePrice();
                      if (e.key === 'Escape') {
                        setIsEditingPrice(false);
-                       setPriceStr(item.price.toFixed(2));
+                       setPriceStr(String(item.price));
                      }
                    }}
                    className="h-8 w-24 px-2 text-sm"
