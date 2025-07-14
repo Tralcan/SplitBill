@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ClipboardCopy } from 'lucide-react';
 import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
+import { useRouter } from 'next/navigation';
 
 const initialState = {
   success: false,
@@ -34,6 +35,7 @@ export function SplitItRightApp() {
   const [receiptLanguage, setReceiptLanguage] = useState('es');
   const [discount, setDiscount] = useState(0);
 
+  const router = useRouter();
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
   const prevRemainingTotal = useRef<number | null>(null);
@@ -308,6 +310,7 @@ export function SplitItRightApp() {
     setReceiptLanguage('es');
     setDiscount(0);
     prevRemainingTotal.current = null;
+    router.push('/cargar');
   }
 
   if (appState === 'idle') {
