@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ClipboardCopy } from 'lucide-react';
 import { useCurrencyFormatter } from '@/hooks/use-currency-formatter';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 const initialState = {
   success: false,
@@ -36,12 +36,13 @@ export function SplitItRightApp() {
   const [discount, setDiscount] = useState(0);
 
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleReceiptUpload, initialState);
   const prevRemainingTotal = useRef<number | null>(null);
   
   const audioContextRef = useRef<AudioContext | null>(null);
-
+  
   // This function initializes and "unlocks" the AudioContext.
   // Mobile browsers require a user gesture to start playing audio.
   const unlockAudio = useCallback(() => {
@@ -83,6 +84,12 @@ export function SplitItRightApp() {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.5);
   }, []);
+
+  useEffect(() => {
+    if (pathname === '/cargar') {
+        setAppState('idle');
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const scales = [0.8, 0.9, 1.0, 1.15, 1.3];
